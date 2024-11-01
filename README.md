@@ -42,8 +42,9 @@ If you're part of a team and want to provide a testing playground for your membe
 
 However, if you already have access to an existing Studio instance, you can skip the setup process and move directly to the next section to begin working with your projects.
 
-### Currently Known Limitations
+### Current Known Limitations
 - Having more than one same microservice node is not allowed. The sandbox execution of a workflow with more than one same microservice node will fail.
+- **Only deployment on CPU is supported** in the current GenAIStudio release. Support for GPU or other devices will be available in future release.
 
 ### System Requirements
 ```
@@ -53,22 +54,28 @@ OS: Linux Debian-based distribution
 ```
 _Note: This setup has been validated on a system running Ubuntu 22.04 on an Intel(R) Xeon(R) Platinum 8468 server with 1000GB memory and 300GB local storage._
 
+### Prerequisites
+GenAIStudio requires an on-premise Kubernetes cluster. If your server does not have Kubernetes set up, please install and setup `kubectl` from the official [Kubernetes](https://kubernetes.io/docs/tasks/tools/install-kubectl-linux/).
+
 ### Installation
-1. **First, clone this repo to your server.**
-	```
+1. **Clone this repo to your server.**
+	```sh
 	git clone https://github.com/opea-project/GenAIStudio
 	cd GenAIStudio
 	```
-2. **Kubernetes Cluster Requirement**
-   
-	GenAIStudio requires an on-premise Kubernetes cluster. If your server does not have Kubernetes set up, please follow this [guide](../opea_studio/setup-scripts/setup-onpremise-kubernetes/readme.md) to install and configure one.
+2. **Run the commands below**
+	```sh
+	sudo apt install ansible
+	ansible-galaxy collection install kubernetes.core #install dependencies for k8s
+	cd setup-scripts/setup-genai-studio
+	ansible-playbook genai-studio-playbook.yml
+	```
+	_Note: you can review the deployment configurations in genai-studio-playbook.yml_
 	
- 3. **Studio Setup**
-	Once Kubernetes is ready, follow this [studio setup guide](./setup-scripts/setup-genai-studio/readme.md) to configure GenAIStudio.
 
 ### Getting Started with GenAIStudio 
 
-You can access the the Studio UI in a web browser at `http://localhost:30007`.
+You can access the the Studio UI in a web browser at http://localhost:30007.
  
 #### Start a New Project
 1. **Create a new workflow:** 
@@ -118,10 +125,57 @@ You can access the the Studio UI in a web browser at `http://localhost:30007`.
 To deploy the downloaded GenAI application locally, ensure that Docker Engine with Docker Compose are installed on your machine. If you haven't installed them yet, please refer to the official [Docker](https://docs.docker.com/engine/install/) documentation for setup instructions.
 	
 #### Deploying a GenAI Application
-The downloaded zip file contains the necessary settings for the microservices. Please follow this [guide](./studio-backend/app/templates/readmes/compose-readme.MD) to deploy a GenAI app created and downloaded from the studio the studio.
+The downloaded zip file includes the necessary configurations for deploying the microservices. Follow these steps to set up and run the application with Docker Compose:
+
+1. Set the public_host_ip environment variables in .env or export it in your environtment:
+
+   ```bash
+   # Note: public_host_ip is an external public IP
+   # ./.env
+   public_host_ip=192.168.1.1
+   ```
+
+	If you’re in a proxy environment, add or export the relevant proxy settings:
+
+	```bash
+	# ./.env
+	public_host_ip=192.168.1.1
+	http_proxy="Your_HTTP_Proxy"
+	https_proxy="Your_HTTPS_Proxy"
+	no_proxy="Your_No_Proxy,app-nginx,app-frontend,app-backend,...Other_Compose_Services"
+	```
+
+2. Start the application using Docker Compose:
+
+    ```bash
+    docker compose -f compose.yaml up -d
+    ```
+
+3. Access the application by opening your web browser and go to:
+
+    ```bash
+    http://<public_host_ip>:8080
+    ```
 
 ## Import and run a sample project
-To get you onboard quickly on the Studio UI, you can import and run this sample project.
+
+Get started quickly with the Studio UI by downloading and importing this [sample project](./assets/sample_projects/sample_project_chatqna.json), which deploys a ChatQnA application.
+
+1. On the Studio main page, create a new workflow. Then, click on the ⚙️ button in the header bar to import a workflow.
+
+	![import-sample-project](./assets/screenshots/import-sample-project.png)
+
+2. Rename the workflow to "ChatQnA" and review the settings in each node. Enter your Hugging Face token in the relevant nodes, then save the workflow.
+
+	![sample-project](./assets/screenshots/sample-project.png)
+
+3. Return to the main page and click the run button to launch the sandbox.
+
+## Additional Content
+
+- [Code of Conduct](https://github.com/opea-project/docs/tree/main/community/CODE_OF_CONDUCT.md)
+- [Security Policy](https://github.com/opea-project/docs/tree/main/community/SECURITY.md)
+- [Legal Information](LEGAL_INFORMATION.md)
 
 
 
