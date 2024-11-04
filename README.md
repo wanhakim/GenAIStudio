@@ -14,17 +14,17 @@
 
 ---
 
-# Jump To:
+## Jump To:
 1. [Key Components](#key-components)
 2. [Setting up GenAIStudio](#setting-up-genaistudio)
 3. [Getting Started with GenAIStudio](#getting-started-with-genaistudio)
    - [Start a New Project](#start-a-new-project)
+   - [App UI Features](#app-ui-features)
    - [Monitor Sandbox Resource Utilization in Grafana Dashboard](#monitor-sandbox-resource-utilization-in-grafana-dashboard)
    - [Download and Run GenAI App Deployment Package Locally](#download-and-run-genai-app-deployment-package-locally)
 4. [Import and Run a Sample Project](#import-and-run-a-sample-project)
 5. [Additional Content](#additional-content)
 
----
 
  ## Key Components
 ![key_components](./assets/screenshots/key_components.png)
@@ -93,9 +93,9 @@ The installation can be done with the following steps:
 	_Note: you can review the deployment configurations in genai-studio-playbook.yml_
 	
 
-### Getting Started with GenAIStudio 
+## Getting Started with GenAIStudio 
 
-You can access the the Studio UI in a web browser at http://localhost:30007.
+You can access the the Studio UI in a web browser at `http://<public_host_ip>:30007`.
  
 #### Start a New Project
 1. **Create a new workflow:** 
@@ -177,7 +177,7 @@ The downloaded zip file includes the necessary configurations for deploying the 
     http://<public_host_ip>:8080
     ```
 
-## Import and run a sample project
+## Import and Run a Sample Project
 
 Get started quickly with the Studio UI by downloading and importing this [sample project](./assets/sample_projects/sample_project_chatqna.json), which deploys a ChatQnA application.
 
