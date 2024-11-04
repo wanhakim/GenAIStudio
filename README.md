@@ -12,6 +12,20 @@
 
 ![concept](./assets/screenshots/concepts.png)
 
+---
+
+# Jump To:
+1. [Key Components](#key-components)
+2. [Setting up GenAIStudio](#setting-up-genaistudio)
+3. [Getting Started with GenAIStudio](#getting-started-with-genaistudio)
+   - [Start a New Project](#start-a-new-project)
+   - [Monitor Sandbox Resource Utilization in Grafana Dashboard](#monitor-sandbox-resource-utilization-in-grafana-dashboard)
+   - [Download and Run GenAI App Deployment Package Locally](#download-and-run-genai-app-deployment-package-locally)
+4. [Import and Run a Sample Project](#import-and-run-a-sample-project)
+5. [Additional Content](#additional-content)
+
+---
+
  ## Key Components
 ![key_components](./assets/screenshots/key_components.png)
 
@@ -43,7 +57,7 @@ If you're part of a team and want to provide a testing playground for your membe
 However, if you already have access to an existing Studio instance, you can skip the setup process and move directly to the next section to begin working with your projects.
 
 ### Current Known Limitations
-- Having more than one same microservice node is not allowed. The sandbox execution of a workflow with more than one same microservice node will fail.
+- **Having more than one same microservice node within the same workflow is not allowed.** The sandbox execution of a workflow with more than one same microservice node will fail.
 - **Only deployment on CPU is supported** in the current GenAIStudio release. Support for GPU or other devices will be available in future release.
 
 ### System Requirements
@@ -55,9 +69,15 @@ OS: Linux Debian-based distribution
 _Note: This setup has been validated on a system running Ubuntu 22.04 on an Intel(R) Xeon(R) Platinum 8468 server with 1000GB memory and 300GB local storage._
 
 ### Prerequisites
-GenAIStudio requires an on-premise Kubernetes cluster. If your server does not have Kubernetes set up, please install and setup `kubectl` from the official [Kubernetes](https://kubernetes.io/docs/tasks/tools/install-kubectl-linux/).
+GenAIStudio requires an on-premise Kubernetes cluster. If your server does not have Kubernetes set up, please install and setup `kubectl` from the official [Kubernetes](https://kubernetes.io/docs/tasks/tools/install-kubectl-linux/). Alternatively, you can try out our [setup script](./setup-scripts/setup-onpremise-kubernetes/readme.md).
 
 ### Installation
+The installation is done using genai-studio-playbook script. The script will
+- Deploy a persistent volume for prometheus and a customized monitoring stack based on prometheus-community/kube-prometheus-stack (which contains both Prometheus and Grafana) in the monitoring namespace.
+- Deploy the studio-backend, studio-frontend and also a studio-nginx in the studio namespace.
+
+The installation can be done with the following steps:
+
 1. **Clone this repo to your server.**
 	```sh
 	git clone https://github.com/opea-project/GenAIStudio
