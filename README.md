@@ -12,11 +12,20 @@
 
 ![concept](./assets/screenshots/concepts.png)
 
----
 
 ## Jump To:
 1. [Key Components](#key-components)
+   - [Kubernetes Cluster](#kubernetes-cluster)
+   - [Studio UI](#studio-ui)
+   - [Sandbox](#sandbox)
+   - [GenAI Microservices](#genai-microservices)
+   - [Deployment Package](#deployment-package)
 2. [Setting up GenAIStudio](#setting-up-genaistudio)
+   - [Who needs to set up the Studio?](#who-needs-to-set-up-the-studio)
+   - [Current Known Limitations](#current-known-limitations)
+   - [System Requirements](#system-requirements)
+   - [Prerequisites](#prerequisites)
+   - [Installation](#installation)
 3. [Getting Started with GenAIStudio](#getting-started-with-genaistudio)
    - [Start a New Project](#start-a-new-project)
    - [App UI Features](#app-ui-features)
