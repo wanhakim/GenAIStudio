@@ -5,10 +5,10 @@
  GenAI Studio reduces the need for manual scripting by encapsulating microservices from OPEA's [GenAIComps](https://github.com/opea-project/GenAIComps) into easily configurable UI blocks. Combined with OPEA's [GenAIInfra](https://github.com/opea-project/GenAIInfra), it generates a one-click deployable package. This approach accelerates the proof-of-concept (POC) process for AI engineers, allowing them to focus on experimentation without the overhead of constructing RAG pipelines or managing infrastructure manually.
 
  **🌟Key Highlights**
- - 🛠️ Build & configure GenAI apps rapidly with low-code with no setup hassle
+ - 🛠️ Build & configure GenAI applications rapidly with low-code with no setup hassle
  - 🔍 Instant evaluation with sandbox
  - 📊 Dynamic performance measurement & benchmarking
- - ⚙️ One-Click deployment package generation for instant app setup
+ - ⚙️ One-click deployment package generation for instant application setup
 
 ![concept](./assets/screenshots/concepts.png)
 
@@ -40,23 +40,23 @@
 
  ### Kubernetes Cluster
  The Kubernetes cluster hosts both the Studio, Sandbox and Monitoring namespaces. 
- - **Studio Namespace:** This is the core application namespace containing the Studio AppBuilder UI and Studio server. The UI allows users to manage projects and build GenAI pipelines. The server includes the Evaluation Sandbox Manager and Deployment Package Generator, which handle deployment of user-designed pipelines.
- - **Sandbox Namespace(s):** Managed by the Studio server, these namespaces create sandbox environments where users can test and evaluate their pipelines. 
- - **Monitoring Namespace:** This namespace contains a Prometheus service that collects performance data from each sandbox. The collected metrics are visualized in a Grafana dashboard, enabling users to monitor resource utilization and pipeline performance.
+ - **Studio Namespace:** This is the core application namespace containing the Studio-Frontend and Studio-Backend. The Studio-Frontend allows users to manage projects and build GenAI pipelines. The Studio-Backend includes the Evaluation Sandbox Manager and Deployment Package Generator, which handle deployment of user-designed pipelines.
+ - **Sandbox Namespace(s):** Managed by the Studio server, these namespaces create sandbox environments where users can test and evaluate the pipelines constructed through Studio-Frontend.
+ - **Monitoring Namespace:** This namespace contains a Prometheus service that collects performance data from each sandbox. These collected metrics are visualized in a Grafana dashboard, enabling users to monitor resource utilization and pipeline performance.
 
 ### Studio UI
-The Studio UI has two main pages.
-- **Main Page:** Provides an overview of the project list, allowing users to easily manage projects, launch sandboxes, download deployment packages, or manage package manifests.
-- **Canvas Page:** A drag-and-drop interface built on Flowise, enabling usersto build proof-of-concept (POC) applications by assembling various configurable microservice blocks into a GenAI pipeline. These microservices form the core components necessary for creating Retrieval-Augmented Generation (RAG) applications. The pipeline can be run and tested within the Studio’s Sandbox environment.
+The Studio UI consists two main pages.
+- **Main Page:** Provides an overview of the workflow list, allowing users to easily manage workflows, launch sandboxes, download deployment packages, and manage package manifests.
+- **Canvas Page:** A drag-and-drop interface built on Flowise, enabling users to build GenAI applications by assembling various configurable microservice blocks into a GenAI pipeline. These microservices form the core components necessary for creating Retrieval-Augmented Generation (RAG) applications. The pipeline can be run and tested within the Studio’s Sandbox environment.
 
 ### Sandbox
-A sandbox is launched when a user  a project through the Studio UI. Each sandbox runs independently, allowing for performance testing and monitoring. The sandbox namespace, managed by the Studio server, contains the necessary microservices based on the pipeline design and includes a App UI. Users can test the pipeline's inference performance and track resource utilization via an integrated Grafana dashboard.
+A sandbox is automatically created when user constructed a project through Studio UI. Each sandbox runs independently, allowing for performance testing and monitoring. The sandbox namespace, managed by the Studio-Backend, contains necessary microservices based on the pipeline constructed and includes a App UI. Users can test the pipeline's inference performance and track resource utilization via an integrated Grafana dashboard.
 
 ### GenAI Microservices
 GenAIStudio currently supports a subset of microservices from GenAIComps, including [DataPrep with Redis](https://github.com/opea-project/GenAIComps/tree/main/comps/dataprep/redis), [TEI Embedding](https://github.com/opea-project/GenAIComps/tree/main/comps/embeddings), [Retriever with Redis](https://github.com/opea-project/GenAIComps/tree/main/comps/retrievers/redis), [Reranks](https://github.com/opea-project/GenAIComps/tree/main/comps/reranks), [LLMs](https://github.com/opea-project/GenAIComps/tree/main/comps/llms) and [Guardrails](https://github.com/opea-project/GenAIComps/tree/main/comps/guardrails). This list is expected to grow in future releases, expanding the range of services available for building and testing GenAI pipelines.
 
 ### Deployment Package
-Users can download the deployment package in a ZIP file from the Studio UI and deploy it locally using Docker Compose. This local setup mirrors the sandbox environment, providing the same app configuration and microservices. It enables users to test their GenAI application on their local machine with identical infrastructure.
+Users can download the deployment package in a ZIP file from the Studio UI and deploy it locally using Docker Compose. This local setup mirrors the sandbox environment, providing the same application configuration and microservices. It enables users to test their GenAI application on their local machine with identical infrastructure.
 
 ## Setting up GenAIStudio
 ### Who needs to set up the Studio?
