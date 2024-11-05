@@ -151,7 +151,7 @@ To deploy the downloaded GenAI application locally, ensure that Docker Engine wi
 #### Deploying a GenAI Application
 The downloaded zip file includes the necessary configurations for deploying the microservices. Follow these steps to set up and run the application with Docker Compose:
 
-1. Set the public_host_ip environment variables in .env or export it in your environtment:
+1. Set the `public_host_ip` environment variables in `.env` or export it in your environtment:
 
    ```bash
    # Note: public_host_ip is an external public IP
