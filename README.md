@@ -22,7 +22,6 @@
    - [Deployment Package](#deployment-package)
 2. [Setting up GenAIStudio](#setting-up-genaistudio)
    - [Who needs to set up the Studio?](#who-needs-to-set-up-the-studio)
-   - [Current Known Limitations](#current-known-limitations)
    - [System Requirements](#system-requirements)
    - [Prerequisites](#prerequisites)
    - [Installation](#installation)
@@ -32,7 +31,8 @@
    - [Monitor Sandbox Resource Utilization in Grafana Dashboard](#monitor-sandbox-resource-utilization-in-grafana-dashboard)
    - [Download and Run GenAI App Deployment Package Locally](#download-and-run-genai-app-deployment-package-locally)
 4. [Import and Run a Sample Project](#import-and-run-a-sample-project)
-5. [Additional Content](#additional-content)
+5. [Known Limitations](#known-limitations)
+6. [Additional Content](#additional-content)
 
 
  ## Key Components
@@ -184,7 +184,7 @@ The downloaded zip file includes the necessary configurations for deploying the 
 
 ## Import and Run a Sample Project
 
-Get started quickly with the Studio UI by downloading and importing this [sample project](./assets/sample_projects/sample_project_chatqna.json), which deploys a ChatQnA application.
+Get started quickly with the Studio UI by downloading and importing this [sample workflow](./sample_workflows/sample_project_chatqna.json), which deploys a ChatQnA application.
 
 1. On the Studio main page, create a new workflow. Then, click on the ⚙️ button in the header bar to import a workflow.
 
@@ -196,7 +196,7 @@ Get started quickly with the Studio UI by downloading and importing this [sample
 
 3. Return to the main page and click the run button to launch the sandbox.
 
-### Known Limitations
+## Known Limitations
 - **Having more than one same microservice node within the same workflow is not allowed.** The sandbox execution of a workflow with more than one instance of the same microservice node will fail.
 - **Only deployment on CPU is supported** in current GenAIStudio release. Support for GPU or other devices will be available in future release.
 
