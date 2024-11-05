@@ -100,7 +100,7 @@ The installation can be done with the following steps:
 
 ## Getting Started with GenAIStudio 
 
-You can access the the Studio UI in a web browser at `http://<public_host_ip>:30007`.
+You can access the the Studio UI in a web browser at `http://<studio_server_ip>:30007`.
  
 #### Start a New Project
 1. **Create a new workflow:** 
@@ -181,6 +181,13 @@ The downloaded zip file includes the necessary configurations for deploying the 
     ```bash
     http://<public_host_ip>:8080
     ```
+	**Note:** To find your public host IP, you can run the following command in your terminal:
+
+    ```bash
+    curl ifconfig.me
+    ```
+
+   This will return the public IP address of your server. Replace `<public_host_ip>` with the output from this command.
 
 ## Import and Run a Sample Project
 
