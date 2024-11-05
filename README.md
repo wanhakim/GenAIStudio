@@ -1,5 +1,5 @@
 # Generative AI Studio (GenAIStudio)
- GenAI Studio strealine the creation of enterprise Generative AI applications by providing alternate to manual processes with a seamless, end-to-end solution. From app development and evaluation to performance benchmarking and deployment, GenAI Studio empowers developers to effortlessly build, test, optimize their LLM solutions and create the deployment package. Its intuitive no-code/low-code interface accelerates innovation, enabling rapid development and deployment of cutting-edge AI applications with unparalleled efficiency and precision.
+ GenAI Studio streamlines the creation of enterprise Generative AI applications by providing alternate to manual processes with a seamless, end-to-end solution. From GenAI app development and evaluation to performance benchmarking and deployment, GenAI Studio empowers developers to effortlessly build, test, optimize their LLM solutions and create the deployment package. Its intuitive no-code/low-code interface accelerates innovation, enabling rapid development and deployment of cutting-edge AI applications with unparalleled efficiency and precision.
 
 ![concept](./assets/screenshots/concepts.png)
 
@@ -26,11 +26,11 @@
    - [Prerequisites](#prerequisites)
    - [Installation](#installation)
 3. [Getting Started with GenAIStudio](#getting-started-with-genaistudio)
-   - [Start a New Project](#start-a-new-project)
+   - [Start a New Workflow](#start-a-new-workflow)
    - [App UI Features](#app-ui-features)
    - [Monitor Sandbox Resource Utilization in Grafana Dashboard](#monitor-sandbox-resource-utilization-in-grafana-dashboard)
    - [Download and Run GenAI App Deployment Package Locally](#download-and-run-genai-app-deployment-package-locally)
-4. [Import and Run a Sample Project](#import-and-run-a-sample-project)
+4. [Import and Run a Sample Workflow](#import-and-run-a-sample-workflow)
 5. [Known Limitations](#known-limitations)
 6. [Additional Content](#additional-content)
 
@@ -39,7 +39,7 @@
 
  ### Kubernetes Cluster
  The Kubernetes cluster hosts both the Studio, Sandbox and Monitoring namespaces. 
- - **Studio Namespace:** This is the core application namespace containing the Studio-Frontend and Studio-Backend. The Studio-Frontend allows users to manage projects and build GenAI pipelines. The Studio-Backend includes the Evaluation Sandbox Manager and Deployment Package Generator, which handle deployment of user-designed pipelines.
+ - **Studio Namespace:** This is the core application namespace containing the Studio-Frontend and Studio-Backend. The Studio-Frontend allows users to manage workflows and build GenAI pipelines. The Studio-Backend includes the Evaluation Sandbox Manager and Deployment Package Generator, which handle deployment of user-designed pipelines.
  - **Sandbox Namespace(s):** Managed by the Studio server, these namespaces create sandbox environments where users can test and evaluate the pipelines constructed through Studio-Frontend.
  - **Monitoring Namespace:** This namespace contains a Prometheus service that collects performance data from each sandbox. These collected metrics are visualized in a Grafana dashboard, enabling users to monitor resource utilization and pipeline performance.
 
@@ -49,7 +49,7 @@ The Studio UI consists two main pages.
 - **Canvas Page:** A drag-and-drop interface built on Flowise, enabling users to build GenAI applications by assembling various configurable microservice blocks into a GenAI pipeline. These microservices form the core components necessary for creating Retrieval-Augmented Generation (RAG) applications. The pipeline can be run and tested within the Studio’s Sandbox environment.
 
 ### Sandbox
-A sandbox is automatically created when user constructed a project through Studio UI. Each sandbox runs independently, allowing for performance testing and monitoring. The sandbox namespace, managed by the Studio-Backend, contains necessary microservices based on the pipeline constructed and includes a App UI. Users can test the pipeline's inference performance and track resource utilization via an integrated Grafana dashboard.
+A sandbox is automatically created when user constructed a workflow through Studio UI. Each sandbox runs independently, allowing for performance testing and monitoring. The sandbox namespace, managed by the Studio-Backend, contains necessary microservices based on the pipeline constructed and includes a App UI. Users can test the pipeline's inference performance and track resource utilization via an integrated Grafana dashboard.
 
 ### GenAI Microservices
 GenAIStudio currently supports a subset of microservices from GenAIComps, including [DataPrep with Redis](https://github.com/opea-project/GenAIComps/tree/main/comps/dataprep/redis), [TEI Embedding](https://github.com/opea-project/GenAIComps/tree/main/comps/embeddings), [Retriever with Redis](https://github.com/opea-project/GenAIComps/tree/main/comps/retrievers/redis), [Reranks](https://github.com/opea-project/GenAIComps/tree/main/comps/reranks), [LLMs](https://github.com/opea-project/GenAIComps/tree/main/comps/llms) and [Guardrails](https://github.com/opea-project/GenAIComps/tree/main/comps/guardrails). This list is expected to grow in future releases, expanding the range of services available for building and testing GenAI pipelines.
@@ -62,7 +62,7 @@ Users can download the deployment package in a ZIP file from the Studio UI and d
   
 If you're part of a team and want to provide a testing playground for your members, you'll need to set up GenAIStudio. This setup allows your team members to test and evaluate their pipelines in a sandbox environment without worrying about infrastructure management.
 
-However, if you already have access to an existing Studio instance, you can skip the setup process and move directly to the next section to begin working with your projects.
+However, if you already have access to an existing Studio instance, you can skip the setup process and move directly to the next section to begin working with your workflows.
 
 ### System Requirements
 ```
@@ -101,7 +101,7 @@ The installation can be done with the following steps:
 
 You can access the the Studio UI in a web browser at `http://<studio_server_ip>:30007`.
  
-#### Start a New Project
+#### Start a New Workflow
 1. **Create a new workflow:** 
 
 	On the `Main Page`, click **Create New Workflow**. This will open a blank `Canvas Page` where you can start building your new project.
@@ -187,7 +187,7 @@ The downloaded zip file includes the necessary configurations for deploying the 
     http://<public_host_ip>:8080
     ```
 
-## Import and Run a Sample Project
+## Import and Run a Sample Workflow
 
 Get started quickly with the Studio UI by downloading and importing this [sample workflow](./sample_workflows/sample_project_chatqna.json), which deploys a ChatQnA application.
 
