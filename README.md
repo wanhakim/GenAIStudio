@@ -56,7 +56,7 @@ A sandbox is automatically created when user constructed a project through Studi
 GenAIStudio currently supports a subset of microservices from GenAIComps, including [DataPrep with Redis](https://github.com/opea-project/GenAIComps/tree/main/comps/dataprep/redis), [TEI Embedding](https://github.com/opea-project/GenAIComps/tree/main/comps/embeddings), [Retriever with Redis](https://github.com/opea-project/GenAIComps/tree/main/comps/retrievers/redis), [Reranks](https://github.com/opea-project/GenAIComps/tree/main/comps/reranks), [LLMs](https://github.com/opea-project/GenAIComps/tree/main/comps/llms) and [Guardrails](https://github.com/opea-project/GenAIComps/tree/main/comps/guardrails). This list is expected to grow in future releases, expanding the range of services available for building and testing GenAI pipelines.
 
 ### Deployment Package
-Users can download the deployment package in a ZIP file from the Studio UI and deploy it locally using Docker Compose. This local setup mirrors the sandbox environment, providing the same application configuration and microservices. It enables users to test their GenAI application on their local machine with identical infrastructure.
+Users can download the deployment package in a ZIP file from the Studio UI and deploy it locally using Docker Compose. This local setup mirrors the sandbox environment, providing the same application configuration and microservices. It enables users to seamlessly deploy the GenAI application constructed in GenAIStudio on their local machine with no hussle.
 
 ## Setting up GenAIStudio
 ### Who needs to set up the Studio?
@@ -64,10 +64,6 @@ Users can download the deployment package in a ZIP file from the Studio UI and d
 If you're part of a team and want to provide a testing playground for your members, you'll need to set up GenAIStudio. This setup allows your team members to test and evaluate their pipelines in a sandbox environment without worrying about infrastructure management.
 
 However, if you already have access to an existing Studio instance, you can skip the setup process and move directly to the next section to begin working with your projects.
-
-### Current Known Limitations
-- **Having more than one same microservice node within the same workflow is not allowed.** The sandbox execution of a workflow with more than one same microservice node will fail.
-- **Only deployment on CPU is supported** in the current GenAIStudio release. Support for GPU or other devices will be available in future release.
 
 ### System Requirements
 ```
@@ -99,7 +95,7 @@ The installation can be done with the following steps:
 	cd setup-scripts/setup-genai-studio
 	ansible-playbook genai-studio-playbook.yml
 	```
-	_Note: you can review the deployment configurations in genai-studio-playbook.yml_
+	_Note: you can review the deployment configurations in [genai-studio-playbook.yml](https://github.com/opea-project/GenAIStudio/blob/main/setup-scripts/setup-genai-studio/genai-studio-playbook.yml)_
 	
 
 ## Getting Started with GenAIStudio 
@@ -199,6 +195,10 @@ Get started quickly with the Studio UI by downloading and importing this [sample
 	![sample-project](./assets/screenshots/sample-project.png)
 
 3. Return to the main page and click the run button to launch the sandbox.
+
+### Known Limitations
+- **Having more than one same microservice node within the same workflow is not allowed.** The sandbox execution of a workflow with more than one instance of the same microservice node will fail.
+- **Only deployment on CPU is supported** in current GenAIStudio release. Support for GPU or other devices will be available in future release.
 
 ## Additional Content
 
