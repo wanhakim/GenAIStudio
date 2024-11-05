@@ -1,17 +1,17 @@
 # Generative AI Studio (GenAIStudio)
- GenAI Studio is designed to streamline the creation of custom large language model (LLM) applications. It builds on insights gained from playground experiments, allowing developers to easily build, test, and benchmark their LLM solutions through an intuitive no-code/low-code interface.
-
- ## Reduce Barrier of Adoption with Low-Code: End-to-End GenAI App Development for Productivity
- GenAI Studio reduces the need for manual scripting by encapsulating microservices from OPEA's [GenAIComps](https://github.com/opea-project/GenAIComps) into easily configurable UI blocks. Combined with OPEA's [GenAIInfra](https://github.com/opea-project/GenAIInfra), it generates a one-click deployable package. This approach accelerates the proof-of-concept (POC) process for AI engineers, allowing them to focus on experimentation without the overhead of constructing RAG pipelines or managing infrastructure manually.
-
- **🌟Key Highlights**
- - 🛠️ Build & configure GenAI applications rapidly with low-code with no setup hassle
- - 🔍 Instant evaluation with sandbox
- - 📊 Dynamic performance measurement & benchmarking
- - ⚙️ One-click deployment package generation for instant application setup
+ GenAI Studio strealine the creation of enterprise Generative AI applications by providing alternate to manual processes with a seamless, end-to-end solution. From app development and evaluation to performance benchmarking and deployment, GenAI Studio empowers developers to effortlessly build, test, optimize their LLM solutions and create the deployment package. Its intuitive no-code/low-code interface accelerates innovation, enabling rapid development and deployment of cutting-edge AI applications with unparalleled efficiency and precision.
 
 ![concept](./assets/screenshots/concepts.png)
 
+ ## Reduce Barrier of Adoption with Low-Code: End-to-End GenAI App Development for Productivity
+ 
+  **🌟Key Highlights**
+ - 🛠️ Build & configure GenAI applications rapidly with low-code with no setup hassle
+ - 🔍 Instant evaluation with sandbox on Kubernetes Namespace
+ - 📊 Dynamic performance measurement & benchmarking with Grafana dashboarding via Prometheus
+ - ⚙️ One-click deployment package generation for instant application setup
+
+ GenAI Studio revolutionizes application development by eliminating the need for manual scripting. It encapsulates OPEA's GenAIComps microservices into intuitive, configurable UI blocks, enabling users to effortlessly create app workflows through a drag-and-drop interface on a GUI canvas. Once the workflow is designed, users can test its functionality in a sandbox environment within individual Kubernetes namespaces. Performance can be monitored and benchmarked using Prometheus, with detailed insights available via Grafana dashboards for each workflow and microservice. Upon completion, users can generate a deployment package that allows one-click deployment, facilitating instant application setup on their own machines. The package includes scripts for direct setup, featuring Dockerfiles for single-machine deployment and manifests for Kubernetes environments.
 
 ## Jump To:
 1. [Key Components](#key-components)
@@ -33,7 +33,6 @@
    - [Download and Run GenAI App Deployment Package Locally](#download-and-run-genai-app-deployment-package-locally)
 4. [Import and Run a Sample Project](#import-and-run-a-sample-project)
 5. [Additional Content](#additional-content)
-
 
  ## Key Components
 ![key_components](./assets/screenshots/key_components.png)
