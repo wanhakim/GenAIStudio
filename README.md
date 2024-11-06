@@ -189,7 +189,7 @@ The downloaded zip file includes the necessary configurations for deploying the 
 
 ## Import and Run a Sample Workflow
 
-Get started quickly with the Studio UI by downloading and importing this [sample workflow](./sample_workflows/sample_project_chatqna.json), which deploys a ChatQnA application.
+Get started quickly with the Studio UI by downloading and importing this [sample workflow](./sample_workflows/sample_workflow_chatqna.json), which deploys a ChatQnA application.
 
 1. On the Studio main page, create a new workflow. Then, click on the ⚙️ button in the header bar to import a workflow.
 
