@@ -7,9 +7,8 @@ on:
   pull_request:
     branches: ["main", "*rc"]
     types: [opened, reopened, ready_for_review, synchronize] # added `ready_for_review` since draft is skipped
-    paths:
-      - "!**.md"
-      - "!**.txt"
+    paths-ignore:
+      - "**.md"
   workflow_dispatch:
 
 concurrency:
