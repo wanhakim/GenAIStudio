@@ -1,0 +1,25 @@
+# Copyright (C) 2024 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
+name: GenAIStudio E2E test
+
+on:
+  pull_request:
+    branches: ["main", "*rc"]
+    types: [opened, reopened, ready_for_review, synchronize] # added `ready_for_review` since draft is skipped
+    paths:
+      - "!**.md"
+      - "!**.txt"
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  pr-image-build:
+    uses: ./.github/workflows/_build-image-to-registry.yml
+    with:
+      node: gaudi
+      tag: ${{ github.event.pull_request.head.sha }}
+    secrets: inherit
