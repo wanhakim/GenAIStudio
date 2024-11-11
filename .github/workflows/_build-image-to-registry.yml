@@ -1,7 +1,7 @@
 # Copyright (C) 2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
 
-name: Uses - Build Images to Registry
+name: Call - Build Images to Registry
 permissions: read-all
 on:
   workflow_call:
@@ -14,13 +14,9 @@ on:
         default: "latest"
         required: false
         type: string
-      test_e2e:
-        default: true
-        required: false
-        type: boolean
 
 jobs:
-  build-images:
+  call-build-image-to-registry:
     runs-on: "docker-build-${{ inputs.node }}"
     steps:
       - name: Clean Up Working Directory

@@ -1,7 +1,7 @@
 # Copyright (C) 2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
 
-name: Manual Image BoM and CVE Scan
+name: Manual - Docker Scan (SBOM and CVE)
 on:
   workflow_dispatch:
     inputs:
@@ -36,13 +36,12 @@ jobs:
           sudo rm -rf ${{github.workspace}}/* || true
           # docker system prune -f
 
-  scan-docker:
+  manual-docker-scan:
     needs: clean-workspace
     runs-on: "docker-build-${{ inputs.node }}"
     strategy:
       matrix:
-        # image: ["studio-frontend", "studio-backend", "app-frontend", "app-backend"]
-        image: ["app-backend"]
+        image: ["studio-frontend", "studio-backend", "app-frontend", "app-backend"]
       fail-fast: false
     steps:
       - name: Pull Image
@@ -58,17 +57,17 @@ jobs:
           output-file: ${{ matrix.image }}-sbom-scan.txt
           format: 'spdx-json'
 
-      # - name: Security Scan Container
-      #   uses: aquasecurity/trivy-action@0.24.0
-      #   if: ${{ inputs.trivy_scan }}
-      #   with:
-      #     image-ref: ${{ env.OPEA_IMAGE_REPO }}opea/${{ matrix.image }}:${{ inputs.tag }}
-      #     output: ${{ matrix.image }}-trivy-scan.txt
-      #     format: 'table'
-      #     exit-code: '1'
-      #     ignore-unfixed: true
-      #     vuln-type: 'os,library'
-      #     severity: 'CRITICAL,HIGH'
+      - name: Security Scan Container
+        uses: aquasecurity/trivy-action@0.24.0
+        if: ${{ inputs.trivy_scan }}
+        with:
+          image-ref: ${{ env.OPEA_IMAGE_REPO }}opea/${{ matrix.image }}:${{ inputs.tag }}
+          output: ${{ matrix.image }}-trivy-scan.txt
+          format: 'table'
+          exit-code: '1'
+          ignore-unfixed: true
+          vuln-type: 'os,library'
+          severity: 'CRITICAL,HIGH'
 
       - name: Cleanup
         if: always()
@@ -81,7 +80,7 @@ jobs:
           mv ${{ matrix.image }}-*-scan.txt /tmp/scan-${{ inputs.tag }}-${{ github.run_number }}
 
   upload-artifacts:
-    needs: scan-docker
+    needs: manual-docker-scan
     runs-on: "docker-build-${{ inputs.node }}"
     if: always()
     steps:

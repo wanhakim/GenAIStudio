@@ -1,7 +1,7 @@
 # Copyright (C) 2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
 
-name: PR E2E test
+name: PR - E2E test
 
 on:
   pull_request:
@@ -16,9 +16,16 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  pr-image-build:
+  pr-build-images:
     uses: ./.github/workflows/_build-image-to-registry.yml
     with:
-      node: gaudi
+      node: xeon
+      tag: ${{ github.event_name == 'workflow_dispatch' && 'latest' || github.event.pull_request.head.sha }}
+    secrets: inherit
+  pr-run-e2e-test:
+    uses: ./.github/workflows/_e2e-test.yml
+    needs: pr-build-images
+    with:
+      node: xeon
       tag: ${{ github.event_name == 'workflow_dispatch' && 'latest' || github.event.pull_request.head.sha }}
     secrets: inherit

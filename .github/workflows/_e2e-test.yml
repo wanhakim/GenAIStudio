@@ -1,7 +1,7 @@
 # Copyright (C) 2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
 
-name: Uses - E2E Test
+name: Call - E2E Test
 permissions: read-all
 on:
   workflow_call:
@@ -16,7 +16,7 @@ on:
         type: string
 
 jobs:
-  run-e2e-test:
+  call-e2e-test:
     runs-on: "docker-build-${{ inputs.node }}"
     steps:
       - name: Clean Up Working Directory
@@ -79,10 +79,4 @@ jobs:
         with:
           name: playwright-test-results
           path: ${{ github.workspace }}/tests/playwright/test-results
-
-      # - name: Clean Up GenAIStudio Deployment
-      #   run: |
-      #     kubectl delete -f manifests/studio-manifest.yaml || true
-      #     kubectl delete -f manifests/monitoring-manifest.yaml || true
-      #   working-directory: ${{ github.workspace }}/setup-scripts/setup-genai-studio/
 
