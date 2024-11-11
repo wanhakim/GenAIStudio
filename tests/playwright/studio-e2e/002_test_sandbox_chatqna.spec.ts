@@ -7,7 +7,7 @@ const uploadPDF1 = path.resolve(__dirname, '../../test-files/Q3 24_EarningsRelea
 const uploadPDF2 = path.resolve(__dirname, '../../test-files/tennis_tutorial.pdf');
 
 const question = "what is intel third-quarter 2024 revenue?";
-const keyword = "$13.3 billion";
+const keyword = "$13.3 billionlalal";
 
 async function setupResponseListener(page, apiResponse) {
     page.on('response', async (response) => {
