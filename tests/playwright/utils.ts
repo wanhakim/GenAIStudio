@@ -4,9 +4,10 @@ export async function waitForStatusText(page: any, selector: string, statusText:
     for (let i = 0; i < maxAttempts; i++) {
         try {
             await expect(page.locator(selector).first()).toHaveText(statusText, { timeout: intervalTimeout });
-            break;
+            return;
         } catch (error) {
             console.log(`Attempt ${i + 1} failed: ${error}`);
         }
     }
+    throw new Error(`Failed to find text "${statusText}" in element "${selector}" after ${maxAttempts} attempts`);
 }
