@@ -61,7 +61,9 @@ jobs:
         working-directory: ${{ github.workspace }}/setup-scripts/setup-genai-studio/
 
       - name: Install Dependencies
-        run: npm install
+        run: |
+          npm install
+          npx playwright install-deps
         working-directory: ${{ github.workspace }}/tests/playwright
 
       - name: Update Playwright Config
@@ -75,6 +77,7 @@ jobs:
         working-directory: ${{ github.workspace }}/tests/playwright
 
       - name: Upload Test Results
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: playwright-test-results
