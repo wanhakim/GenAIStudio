@@ -36,7 +36,7 @@ jobs:
           ref: ${{ env.CHECKOUT_REF }}
           fetch-depth: 0
 
-      - name: Update Manifest Find
+      - name: Update Manifest
         run: |
           find . -type f -name 'studio-manifest.yaml' -exec sed -i 's/value: opea/value: ${REGISTRY}/g' {} \;
         working-directory: ${{ github.workspace }}/setup-scripts/setup-genai-studio/manifests/

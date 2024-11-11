@@ -47,7 +47,7 @@ test('002_test_sandbox_chatqna', async ({ page, baseURL }) => {
     await fileChooser.setFiles(sampleWorkflow);
     await page.getByRole('button', { name: 'Save Workflow' }).click();
     await page.getByPlaceholder('My New Chatflow').click();
-    await page.getByPlaceholder('My New Chatflow').fill('Wf1');
+    await page.getByPlaceholder('My New Chatflow').fill('test_002');
     await page.getByRole('button', { name: 'Save' }).click();
     await page.goto(IDC_URL);
     await expect(page.locator('td.MuiTableCell-root div.MuiStack-root p.MuiTypography-root').first()).toHaveText('Not Running', { timeout: 60000 });

@@ -8,7 +8,6 @@ test('001_test_sandbox_deployment', async ({ page, baseURL }) => {
     test.setTimeout(600000);
 
     const IDC_URL = baseURL || ""
-    const statusChangeTimeout = 300000; // 5 minutes
     await page.goto(IDC_URL);
     await page.getByRole('button', { name: 'Create New Workflow' }).click();
     await page.getByRole('button', { name: 'Settings' }).click();
@@ -19,7 +18,7 @@ test('001_test_sandbox_deployment', async ({ page, baseURL }) => {
     await fileChooser.setFiles(filePath);
     await page.getByRole('button', { name: 'Save Workflow' }).click();
     await page.getByPlaceholder('My New Chatflow').click();
-    await page.getByPlaceholder('My New Chatflow').fill('Wf1');
+    await page.getByPlaceholder('My New Chatflow').fill('test_001');
     await page.getByRole('button', { name: 'Save' }).click();
     await page.goto(IDC_URL);
     await expect(page.locator('td.MuiTableCell-root div.MuiStack-root p.MuiTypography-root').first()).toHaveText('Not Running', { timeout: 60000 });
