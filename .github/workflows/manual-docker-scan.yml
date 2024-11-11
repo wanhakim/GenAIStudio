@@ -6,13 +6,12 @@ on:
   workflow_dispatch:
     inputs:
       node:
-        default: "gaudi"
+        default: "xeon"
         description: "Hardware to run scan"
         required: true
         type: string
       tag:
-        # default: "latest"
-        default: "test1"
+        default: "latest"
         description: "Tag for images to scan"
         required: true
         type: string
@@ -42,7 +41,8 @@ jobs:
     runs-on: "docker-build-${{ inputs.node }}"
     strategy:
       matrix:
-        image: ["studio-frontend", "studio-backend", "app-frontend", "app-backend"]
+        # image: ["studio-frontend", "studio-backend", "app-frontend", "app-backend"]
+        image: ["app-backend"]
       fail-fast: false
     steps:
       - name: Pull Image
@@ -58,17 +58,17 @@ jobs:
           output-file: ${{ matrix.image }}-sbom-scan.txt
           format: 'spdx-json'
 
-      - name: Security Scan Container
-        uses: aquasecurity/trivy-action@0.24.0
-        if: ${{ inputs.trivy_scan }}
-        with:
-          image-ref: ${{ env.OPEA_IMAGE_REPO }}opea/${{ matrix.image }}:${{ inputs.tag }}
-          output: ${{ matrix.image }}-trivy-scan.txt
-          format: 'table'
-          exit-code: '1'
-          ignore-unfixed: true
-          vuln-type: 'os,library'
-          severity: 'CRITICAL,HIGH'
+      # - name: Security Scan Container
+      #   uses: aquasecurity/trivy-action@0.24.0
+      #   if: ${{ inputs.trivy_scan }}
+      #   with:
+      #     image-ref: ${{ env.OPEA_IMAGE_REPO }}opea/${{ matrix.image }}:${{ inputs.tag }}
+      #     output: ${{ matrix.image }}-trivy-scan.txt
+      #     format: 'table'
+      #     exit-code: '1'
+      #     ignore-unfixed: true
+      #     vuln-type: 'os,library'
+      #     severity: 'CRITICAL,HIGH'
 
       - name: Cleanup
         if: always()

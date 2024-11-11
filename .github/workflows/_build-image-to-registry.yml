@@ -7,6 +7,7 @@ on:
   workflow_call:
     inputs:
       node:
+        default: "xeon"
         required: true
         type: string
       tag:
@@ -41,7 +42,5 @@ jobs:
 
       - name: Build Image and Push Image
         run: |
-            whoami
-            echo ${OPEA_IMAGE_REPO}
-            cd ${{ github.workspace }}/setup-scripts/build-image-to-registry
-            ansible-playbook build-image-to-registry.yml -e "container_registry=${OPEA_IMAGE_REPO}opea" -e "container_tag=${{ inputs.tag }}"
+          ansible-playbook build-image-to-registry.yml -e "container_registry=${OPEA_IMAGE_REPO}opea" -e "container_tag=${{ inputs.tag }}"
+        working-directory: ${{ github.workspace }}/setup-scripts/build-image-to-registry/
