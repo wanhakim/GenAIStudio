@@ -46,18 +46,16 @@ jobs:
           if kubectl get namespace studio; then
             kubectl delete -f manifests/studio-manifest.yaml || true
             kubectl wait --for=delete pod --all --namespace=studio --timeout=300s
-            kubectl delete namespace studio
           fi
           if kubectl get namespace monitoring; then
             kubectl delete -f manifests/monitoring-manifest.yaml || true
             kubectl wait --for=delete pod --all --namespace=monitoring --timeout=300s
-            kubectl delete namespace monitoring
           fi
           sleep 5
           ansible-playbook genai-studio.yml -e "container_registry=${OPEA_IMAGE_REPO}opea" -e "container_tag=${{ inputs.tag }}"
           sleep 5
-          kubectl wait --for=condition=ready pod --all --namespace=monitoring --timeout=300s --field-selector=status.phase!=Succeeded
           kubectl wait --for=condition=ready pod --all --namespace=studio --timeout=300s --field-selector=status.phase!=Succeeded
+          kubectl wait --for=condition=ready pod --all --namespace=monitoring --timeout=300s --field-selector=status.phase!=Succeeded
         working-directory: ${{ github.workspace }}/setup-scripts/setup-genai-studio/
 
       - name: Install Dependencies
