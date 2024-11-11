@@ -76,7 +76,7 @@ spec:
             runAsUser: 1000
             seccompProfile:
               type: RuntimeDefault
-          image: "${REGISTRY}/dataprep-redis:${TAG}"
+          image: "${REGISTRYlala}/dataprep-redis:${TAG}"
           imagePullPolicy: IfNotPresent
           ports:
             - name: data-prep
