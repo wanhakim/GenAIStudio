@@ -5,8 +5,8 @@
 
  ## Reduce Barrier of Adoption with Low-Code: End-to-End GenAI App Development for Productivity
  
-  **🌟Key Highlights**
- - 🛠️ Build & configure GenAI applications rapidly with low-code with no setup hassle
+  **🌟Key Capabilities**
+ - 🛠️ Build & configure GenAI applications rapidly with low-code and no setup hassle
  - 🔍 Instant evaluation with sandbox on Kubernetes Namespace
  - 📊 Dynamic performance measurement & benchmarking with Grafana dashboarding via Prometheus
  - ⚙️ One-click deployment package generation for instant application setup
@@ -94,7 +94,7 @@ The installation can be done with the following steps:
 	cd setup-scripts/setup-genai-studio
 	ansible-playbook genai-studio-playbook.yml
 	```
-	_Note: you can review the deployment configurations in [genai-studio-playbook.yml](https://github.com/opea-project/GenAIStudio/blob/main/setup-scripts/setup-genai-studio/genai-studio-playbook.yml)_
+	_Note: you can review the deployment configurations in [genai-studio-playbook.yml](./setup-scripts/setup-genai-studio/genai-studio-playbook.yml)_
 	
 
 ## Getting Started with GenAIStudio 
