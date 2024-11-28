@@ -41,6 +41,7 @@
     environment:
       http_proxy: "{{ http_proxy }}"
       https_proxy: "{{ http_proxy }}"
+      no_proxy: "{{ no_proxy }}"
 
   - name: Extract CNI plugins
     unarchive:
@@ -149,6 +150,7 @@
     environment:
       http_proxy: "{{ http_proxy }}"
       https_proxy: "{{ http_proxy }}"
+      no_proxy: "{{ no_proxy }}"
 
   - name: Extract token and cert hash
     set_fact:
@@ -177,11 +179,13 @@
 
   - name: Get current kube-proxy config
     shell: kubectl get configmap kube-proxy -n kube-system -o yaml > kube-proxy-config.yaml
+    become_user: "{{ ansible_user }}"
     register: kube_proxy_config
     environment:
       KUBECONFIG: "/home/{{ ansible_user }}/.kube/config"
       http_proxy: "{{ http_proxy }}"
       https_proxy: "{{ http_proxy }}"
+      no_proxy: "{{ no_proxy }}"
 
   - name: Update strictARP field
     replace:
@@ -197,6 +201,7 @@
       KUBECONFIG: "/home/{{ ansible_user }}/.kube/config"
       http_proxy: "{{ http_proxy }}"
       https_proxy: "{{ http_proxy }}"
+      no_proxy: "{{ no_proxy }}"
 
   - name: Get cluster info
     become: yes
@@ -207,18 +212,20 @@
       KUBECONFIG: "/home/{{ ansible_user }}/.kube/config"
       http_proxy: "{{ http_proxy }}"
       https_proxy: "{{ http_proxy }}"
+      no_proxy: "{{ no_proxy }}"
 
   - name: Display the cluster-info
     debug:
       var: cluster_info.stdout_lines
 
-  - name: Use kubectl to install Flannel
+  - name: Download Flannel manifest
     get_url:
       url: https://raw.githubusercontent.com/coreos/flannel/master/Documentation/kube-flannel.yml
       dest: /tmp/kube-flannel.yml
     environment:
       http_proxy: "{{ http_proxy }}"
       https_proxy: "{{ http_proxy }}"
+      no_proxy: "{{ no_proxy }}"
   
   - name: Replace pod network cidr in Flannel manifest
     replace:
@@ -234,6 +241,7 @@
       KUBECONFIG: "/home/{{ ansible_user }}/.kube/config"
       http_proxy: "{{ http_proxy }}"
       https_proxy: "{{ http_proxy }}"
+      no_proxy: "{{ no_proxy }}"
 
   - name: Taint master node for scheduling apps
     become: yes
@@ -243,6 +251,7 @@
       KUBECONFIG: "/home/{{ ansible_user }}/.kube/config"
       http_proxy: "{{ http_proxy }}"
       https_proxy: "{{ http_proxy }}"
+      no_proxy: "{{ no_proxy }}"
 
 - hosts: k8_worker
   gather_facts: yes
@@ -316,6 +325,7 @@
     environment:
       http_proxy: "{{ http_proxy }}"
       https_proxy: "{{ http_proxy }}"
+      no_proxy: "{{ no_proxy }}"
 
 
 - hosts: k8_master
@@ -332,6 +342,7 @@
       KUBECONFIG: "/home/{{ ansible_user }}/.kube/config"
       http_proxy: "{{ http_proxy }}"
       https_proxy: "{{ http_proxy }}"
+      no_proxy: "{{ no_proxy }}"
 
   - name: Display the cluster-info
     debug:
