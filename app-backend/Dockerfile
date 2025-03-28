@@ -11,16 +11,17 @@ RUN useradd -m -s /bin/bash user && \
     mkdir -p /home/user && \
     chown -R user /home/user/
 
-WORKDIR /home/user/
+WORKDIR /home/user/repo/
 RUN git clone --depth 1 https://github.com/opea-project/GenAIComps.git
 
 WORKDIR /home/user/GenAIComps
 RUN pip install --no-cache-dir --upgrade pip==24.3.1 setuptools==75.3.0 && \
-    pip install --no-cache-dir -r /home/user/GenAIComps/requirements.txt
+    pip install --no-cache-dir -r /home/user/repo/GenAIComps/requirements.txt
 
 COPY ./templates/microservices/* /home/user/templates/microservices/
 COPY ./megaservice.py /home/user/megaservice.py
 COPY config/* /home/user/config/
+COPY comps /home/user/GenAIComps/comps
 
 ENV PYTHONPATH=/home/user/GenAIComps
 
