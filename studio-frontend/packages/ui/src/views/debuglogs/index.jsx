@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useParams } from "react-router-dom";
 import {
     Table,
@@ -42,6 +42,9 @@ export default function PodLogsView() {
     const [selectedPodLogs, setSelectedPodLogs] = useState(null);
     const [selectedPodEvents, setSelectedPodEvents] = useState(null);
 
+    const logsRef = useRef(null);
+    const eventsRef = useRef(null);
+
     const { ns } = useParams();
     console.log("ns: ", ns);
 
@@ -53,6 +56,7 @@ export default function PodLogsView() {
         try {
             const response = await fetch(url, { headers: { "Content-Type": "application/json" } });
             const data = await response.json();
+            console.log("Pods data:", data);
             setPodsData(data);
         } catch (error) {
             console.error("Failed to fetch pods data:", error);
@@ -60,16 +64,34 @@ export default function PodLogsView() {
     };
 
     useEffect(() => {
-        fetchPodsData();
-    }, []);
+        if (ns) {
+            fetchPodsData(ns);
+        }
+    }, [ns]);
 
     useEffect(() => {
-        if (!autoRefresh) return;
+        if (!autoRefresh || !ns) return;
         const interval = setInterval(() => {
-            fetchPodsData();
-        }, 5000); // Refresh every 5 seconds
+            fetchPodsData(ns);
+        }, 5000);
         return () => clearInterval(interval);
-    }, [autoRefresh]);
+    }, [autoRefresh, ns]);
+
+    useEffect(() => {
+        if (selectedPodLogs) {
+            setTimeout(() => {
+                logsRef.current?.scrollTo(0, logsRef.current.scrollHeight);
+            }, 0);
+        }
+    }, [selectedPodLogs]);
+
+    useEffect(() => {
+        if (selectedPodEvents) {
+            setTimeout(() => {
+                eventsRef.current?.scrollTo(0, eventsRef.current.scrollHeight);
+            }, 0);
+        }
+    }, [selectedPodEvents]);
 
     const toggleAutoRefresh = () => {
         setAutoRefresh(!autoRefresh);
@@ -88,8 +110,7 @@ export default function PodLogsView() {
 
     return (
         <Box sx={{ p: 4 }}>
-            <Typography variant="h6">Workflow Name</Typography>
-            <Typography variant="body2" color="text.secondary">Namespace: {podsData.namespace}</Typography>
+            <Typography variant="body1" component="span">Namespace: {podsData.namespace}</Typography>
 
             <Box sx={{ my: 2 }}>
                 <Typography variant="body1" component="span">Auto refresh: </Typography>
@@ -103,6 +124,7 @@ export default function PodLogsView() {
                     <TableHead>
                         <StyledTableRow>
                             <StyledTableCell>Pod Name</StyledTableCell>
+                            <StyledTableCell>Pod Ready</StyledTableCell>
                             <StyledTableCell>Pod Status</StyledTableCell>
                             <StyledTableCell>Pod Events</StyledTableCell>
                             <StyledTableCell>Pod Logs</StyledTableCell>
@@ -112,6 +134,7 @@ export default function PodLogsView() {
                         {podsData.pods.map((pod) => (
                             <StyledTableRow key={pod.name}>
                                 <StyledTableCell>{pod.name}</StyledTableCell>
+                                <StyledTableCell>{pod.ready}</StyledTableCell>
                                 <StyledTableCell>{pod.status}</StyledTableCell>
                                 <StyledTableCell>
                                     {pod.events.length > 0 ? (
@@ -139,7 +162,7 @@ export default function PodLogsView() {
                 BackdropProps={{ timeout: 500 }}
             >
                 <Fade in={!!selectedPodLogs}>
-                    <Box sx={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', width: '70%', maxHeight: '80%', bgcolor: 'background.paper', borderRadius: 2, boxShadow: 24, p: 4, overflow: 'auto' }}>
+                    <Box sx={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', width: '70%', maxHeight: '80%', bgcolor: 'background.paper', borderRadius: 2, boxShadow: 24, p: 4, overflow: 'auto' }} ref={logsRef}>
                         <Typography variant="h6" gutterBottom>{selectedLogPod?.name} Logs</Typography>
                         <Divider sx={{ my: 1 }} />
                         <pre style={{ whiteSpace: 'pre-wrap', wordWrap: 'break-word' }}>
@@ -160,7 +183,7 @@ export default function PodLogsView() {
                 BackdropProps={{ timeout: 500 }}
             >
                 <Fade in={!!selectedPodEvents}>
-                    <Box sx={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', width: '60%', maxHeight: '80%', bgcolor: 'background.paper', borderRadius: 2, boxShadow: 24, p: 4, overflow: 'auto' }}>
+                    <Box sx={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', width: '60%', maxHeight: '80%', bgcolor: 'background.paper', borderRadius: 2, boxShadow: 24, p: 4, overflow: 'auto' }} ref={eventsRef}>
                         <Typography variant="h6" gutterBottom>{selectedEventPod?.name} Events</Typography>
                         <Divider sx={{ my: 1 }} />
                         <pre style={{ whiteSpace: 'pre-wrap', wordWrap: 'break-word' }}>
