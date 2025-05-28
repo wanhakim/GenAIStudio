@@ -79,5 +79,10 @@ class PipelineFlow(BaseModel):
     createdDate: datetime
     updatedDate: datetime
 
+class DeployPipelineFlow(BaseModel):
+    remoteHost: str
+    remoteUser: str
+    pipelineFlow: PipelineFlow
+    
 class WorkflowId(BaseModel):
     id: str

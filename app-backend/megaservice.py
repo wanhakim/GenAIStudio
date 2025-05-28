@@ -401,7 +401,7 @@ class AppService:
 
 if __name__ == "__main__":
     print('pre initialize appService')
-    app = AppService(host="0.0.0.0", port=8888)
+    app = AppService(host="0.0.0.0", port=8899)
     print('after initialize appService')
     app.add_remote_service()
     print('after add_remote_service')

@@ -356,6 +356,21 @@ spec:
           periodSeconds: 30
           timeoutSeconds: 10
           failureThreshold: 3
+        volumeMounts:
+        - name: ssh-key-volume
+          mountPath: /root/.ssh
+          readOnly: true
+      volumes:
+      - name: ssh-key-volume
+        secret:
+          secretName: ssh-keys
+          items:
+          - key: studio-id_rsa
+            path: id_rsa
+            mode: 0400
+          - key: studio-id_rsa.pub
+            path: id_rsa.pub
+            mode: 0644
       serviceAccountName: studio-backend-sa
 ---
 apiVersion: v1

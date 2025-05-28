@@ -163,7 +163,7 @@ services:
     - reranking-tei-0
     - retriever-redis-0
     ports:
-    - 8888:8888
+    - 8899:8899
     environment:
     - no_proxy=${no_proxy}
     - https_proxy=${https_proxy}
@@ -197,7 +197,7 @@ services:
     - app-frontend
     - app-backend
     ports:
-    - 8080:80
+    - 8090:80
     environment:
     - no_proxy=${no_proxy}
     - https_proxy=${https_proxy}
@@ -206,7 +206,7 @@ services:
     - FRONTEND_SERVICE_PORT=5175
     - BACKEND_SERVICE_NAME=app-backend
     - BACKEND_SERVICE_IP=${public_host_ip}
-    - BACKEND_SERVICE_PORT=8888
+    - BACKEND_SERVICE_PORT=8899
     - DATAPREP_SERVICE_IP=${public_host_ip}
     - DATAPREP_SERVICE_PORT=6007
     ipc: host
