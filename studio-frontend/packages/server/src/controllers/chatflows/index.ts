@@ -273,6 +273,29 @@ const buildDeploymentPackage = async (req: Request, res: Response, next: NextFun
     }
 }
 
+const getPublicKey = async (req: Request, res: Response, next: NextFunction) => {
+    const fs = await import('fs/promises');
+    try {
+        const publicKey = await fs.readFile('/root/.ssh/id_rsa.pub', 'utf-8');
+        res.json({ pubkey: publicKey })
+    } catch (error) {
+        next(error)
+    }
+}
+
+const oneClickDeployment = async (req: Request, res: Response, next: NextFunction) => {
+    console.log('Deploying one click')
+    try {
+        if (typeof req.params === 'undefined' || !req.params.id) {
+            throw new InternalFlowiseError(StatusCodes.PRECONDITION_FAILED, `Error: chatflowsRouter.oneClickDeployment - id not provided!`)
+        }
+        const deployResponse = await chatflowsService.oneClickDeploymentService(req.params.id, req.body)
+        res.status(200).json(deployResponse)
+    } catch (error) {
+        next(error)
+    }
+}
+
 export default {
     checkIfChatflowIsValidForStreaming,
     checkIfChatflowIsValidForUploads,
@@ -289,5 +312,7 @@ export default {
     getSinglePublicChatbotConfig,
     deployChatflowSandbox,
     stopChatflowSandbox,
-    buildDeploymentPackage
+    buildDeploymentPackage,
+    getPublicKey,
+    oneClickDeployment
 }

@@ -31,10 +31,12 @@ import {
     Analytics,
     PlayCircleOutline,
     UnarchiveOutlined,
-    ViewTimelineOutlined
+    ViewTimelineOutlined,
+    InstallDesktopOutlined
 } from '@mui/icons-material'
 
 import BuildDeploymentPackageDialog from '../dialog/BuildDeploymentPackageDialog'
+import OneClickDeploymentDialog from '../dialog/OneClickDeploymentDialog'
 import chatflowsApi from '@/api/chatflows'
 import config from '@/config'
 import { update } from 'lodash'
@@ -113,25 +115,36 @@ export const FlowListTable = ({ data, images, isLoading, filterFunction, updateF
         const studio_server_url = config.studio_server_url;
         const statusCheckEndpoint = config.sandbox_status_endpoint;
         const openConnections = [];
-        const openWebSocketConnection = (id, status) => {
-            const ws = new WebSocket(`${studio_server_url}/${statusCheckEndpoint}`);
+        const openWebSocketConnection = (id, status, type = 'sandbox') => {
+            let wsEndpoint = type === 'clickdeploy' ? config.clickdeploy_status_endpoint : config.sandbox_status_endpoint;
+            const ws = new WebSocket(`${config.studio_server_url}/${wsEndpoint}`);
             ws.onopen = () => {
-                const payload = JSON.stringify({ id: id, status: status });
+                let payload;
+                if (type === 'clickdeploy') {
+                    // For clickdeploy, send hostname, username, compose_dir
+                    payload = JSON.stringify({ hostname: id.hostname, username: id.username, compose_dir: id.compose_dir });
+                } else {
+                    payload = JSON.stringify({ id: id, status: status });
+                }
                 ws.send(payload);
-                console.log('Connected to WebSocket server', id);
+                console.log('Connected to WebSocket server', id, type);
             };
             ws.onmessage = (event) => {
                 const data = JSON.parse(event.data);
-                console.log('Deployment status:', data.status, id);
-                if (data.status === 'Ready' || data.status === 'Error' || data.status === 'Not Running') {
+                console.log('Deployment status:', data.status, id, type);
+                if (data.status === 'Done' || data.status === 'Error' || data.status === 'Not Running' || data.status === 'Ready') {
                     ws.close();
                     openConnections.splice(openConnections.indexOf(ws), 1);
-                    updateSandboxStatus(id, data.status, data.sandbox_app_url, data.sandbox_grafana_url, data.sandbox_tracer_url);
-                    updateFlowToServerApi(id, { sandboxStatus: data.status, sandboxAppUrl: data.sandbox_app_url, sandboxGrafanaUrl: data.sandbox_grafana_url, sandboxTracerUrl: data.sandbox_tracer_url });
+                    if (type === 'clickdeploy') {
+                        updateSandboxStatus(id.id, data.status); // id.id is the workflow id
+                    } else {
+                        updateSandboxStatus(id, data.status, data.sandbox_app_url, data.sandbox_grafana_url, data.sandbox_tracer_url);
+                        updateFlowToServerApi(id, { sandboxStatus: data.status, sandboxAppUrl: data.sandbox_app_url, sandboxGrafanaUrl: data.sandbox_grafana_url, sandboxTracerUrl: data.sandbox_tracer_url });
+                    }
                 }
             };
             ws.onclose = () => {
-                console.log('Disconnected from WebSocket server', id);
+                console.log('Disconnected from WebSocket server', id, type);
             };
             return ws;
         };
@@ -176,7 +189,6 @@ export const FlowListTable = ({ data, images, isLoading, filterFunction, updateF
         }
     }
 
-
     const [buildDeploymentPackageDialogOpen, setBuildDeploymentPackageDialogOpen] = useState(false)
     const [buildDeploymentPackageDialogProps, setBuildDeploymentPackageDialogProps] = useState({})
 
@@ -209,7 +221,24 @@ export const FlowListTable = ({ data, images, isLoading, filterFunction, updateF
         setBuildDeploymentPackageDialogOpen(true)
     }
 
+    const [oneClickDeploymentDialogOpen, setOneClickDeploymentDialogOpen] = useState(false)
+    const [oneClickDeploymentDialogProps, setOneClickDeploymentDialogProps] = useState({})
 
+    const oneClickDeployment = async (id, deploymentConfig) => {
+        try {
+            // Only call the backend API and return the response (including compose_dir)
+            const response = await chatflowsApi.clickDeployment(id, deploymentConfig)
+            return response.data; // Pass compose_dir and other info to the dialog
+        } catch (error) {
+            // Optionally show error
+            return { error: error?.message || 'Deployment failed' };
+        }
+    }
+
+    const handleOneClickDeployment = (id) => {
+        setOneClickDeploymentDialogProps({ id })
+        setOneClickDeploymentDialogOpen(true)
+    }
 
     useEffect(() => {
         setSortedData(handleSortData());
@@ -299,13 +328,22 @@ export const FlowListTable = ({ data, images, isLoading, filterFunction, updateF
                                     Launch Tracer
                                 </Stack>
                             </StyledTableCell>
-                            <StyledTableCell style={{ width: '5%' }} key='5'>
+                            {/* <StyledTableCell style={{ width: '5%' }} key='5'>
                                 <Stack
                                     direction={{ xs: 'column', sm: 'row' }}
                                     spacing={1}
                                     justifyContent='center'
                                 >
                                     Deployment Package Generation
+                                </Stack>
+                            </StyledTableCell> */}
+                            <StyledTableCell style={{ width: '5%' }} key='9'>
+                                <Stack
+                                    direction={{ xs: 'column', sm: 'row' }}
+                                    spacing={1}
+                                    justifyContent='center'
+                                >
+                                    1 Click Deployment
                                 </Stack>
                             </StyledTableCell>
                             <StyledTableCell style={{ width: '25%' }} key='6'>
@@ -537,7 +575,7 @@ export const FlowListTable = ({ data, images, isLoading, filterFunction, updateF
                                                 </Tooltip>
                                             </Stack>
                                         </StyledTableCell>
-                                        <StyledTableCell key='5'>
+                                        {/* <StyledTableCell key='5'>
                                             <Stack
                                                 direction={{ xs: 'column', sm: 'row' }}
                                                 spacing={1}
@@ -550,6 +588,26 @@ export const FlowListTable = ({ data, images, isLoading, filterFunction, updateF
                                                             startIcon={<UnarchiveOutlined />}
                                                             onClick={() => {
                                                                 handleBuildDeploymentPackage(row.id);
+                                                            }}
+                                                        >
+                                                        </Button>
+                                                    </span>
+                                                </Tooltip>
+                                            </Stack>
+                                        </StyledTableCell> */}
+                                        <StyledTableCell key='9'>
+                                            <Stack
+                                                direction={{ xs: 'column', sm: 'row' }}
+                                                spacing={1}
+                                                justifyContent='center'
+                                                alignItems='center'
+                                            >
+                                                <Tooltip title={"1 Click Deployment"}>
+                                                    <span>
+                                                        <Button
+                                                            startIcon={<InstallDesktopOutlined />}
+                                                            onClick={() => {
+                                                                handleOneClickDeployment(row.id);
                                                             }}
                                                         >
                                                         </Button>
@@ -589,6 +647,12 @@ export const FlowListTable = ({ data, images, isLoading, filterFunction, updateF
                 dialogProps={buildDeploymentPackageDialogProps}
                 onCancel={() => setBuildDeploymentPackageDialogOpen(false)}
                 onConfirm={downloadDeploymentPackage}
+            />
+            <OneClickDeploymentDialog
+                show={oneClickDeploymentDialogOpen}
+                dialogProps={oneClickDeploymentDialogProps}
+                onCancel={() => setOneClickDeploymentDialogOpen(false)}
+                onConfirm={oneClickDeployment}
             />
         </>
     )

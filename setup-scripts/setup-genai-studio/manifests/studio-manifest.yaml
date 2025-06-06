@@ -368,9 +368,6 @@ spec:
           - key: studio-id_rsa
             path: id_rsa
             mode: 0400
-          - key: studio-id_rsa.pub
-            path: id_rsa.pub
-            mode: 0644
       serviceAccountName: studio-backend-sa
 ---
 apiVersion: v1
@@ -425,7 +422,7 @@ spec:
         - name: DATABASE_NAME
           value: studio
         - name: DATABASE_SSL
-          value: "true"
+          value: "false"
         ports:
         - name: studio-frontend
           containerPort: 8080
@@ -434,9 +431,19 @@ spec:
         volumeMounts:
         - mountPath: /tmp
           name: tmp
+        - name: ssh-key-volume
+          mountPath: /root/.ssh
+          readOnly: true
       volumes:
       - name: tmp
         emptyDir: {}
+      - name: ssh-key-volume
+        secret:
+          secretName: ssh-keys
+          items:
+          - key: studio-id_rsa.pub
+            path: id_rsa.pub
+            mode: 0644
 ---
 apiVersion: apps/v1
 kind: Deployment

@@ -8,6 +8,7 @@ const config = {
     sandbox_status_endpoint: import.meta.env.VITE_SANDBOX_STATUS_ENDPOINT || 'studio-backend/ws/sandbox-status',
     sandbox_tracer_list_endpoint: import.meta.env.VITE_SANDBOX_TRACER_LIST || 'studio-backend/trace-ids',
     sandbox_tracer_tree_endpoint: import.meta.env.VITE_SANDBOX_TRACER_TREE || 'studio-backend/trace-tree',
+    clickdeploy_status_endpoint: import.meta.env.VITE_CLICKDEPLOY_STATUS_ENDPOINT || 'studio-backend/ws/clickdeploy-status',
 }
 
 export default config

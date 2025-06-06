@@ -7,6 +7,7 @@ import tempfile
 import json
 import zipfile
 import datetime
+import time
 
 from app.services.exporter_service import convert_proj_info_to_compose
 from app.services.workflow_info_service import WorkflowInfo
@@ -41,30 +42,25 @@ def deploy_pipeline(hostname, username, pipeline_flow):
             f"mkdir {remote_compose_dir}",
             f"unzip -o {remote_zip_path} -d {remote_compose_dir}",
             f"rm -f {remote_zip_path}",
-            f"cd {remote_compose_dir} && docker compose up -d"
+            f"cd {remote_compose_dir} && nohup docker compose up -d & sleep 0.1"
         ]
-        docker_compose_result = None
         for cmd in commands:
             print(f"[INFO] Executing remote command: {cmd}")
-            stdin, stdout, stderr = ssh.exec_command(cmd)
+            _, stdout, stderr = ssh.exec_command(cmd, get_pty=True)
             exit_status = stdout.channel.recv_exit_status()
-            stdout_str = stdout.read().decode()
-            stderr_str = stderr.read().decode()
+            stderr_str = stderr.read().decode().strip()
             print(f"[INFO] Command exit status: {exit_status}")
-            if "docker compose up -d" in cmd:
-                docker_compose_result = {
-                    "command": cmd,
-                    "exit_status": exit_status,
-                    "stdout": stdout_str.strip().splitlines(),
-                    "stderr": stderr_str.strip().splitlines()
-                }
-            if exit_status != 0:
-                print(f"[ERROR] Command error output: {stderr_str}")
+            if stderr_str:
+                print(f"[ERROR] Stderr: {stderr_str}")
 
         ssh.close()
         print("[INFO] SSH connection closed.")
 
-        return docker_compose_result
+        return {
+            "status": "success",
+            "message": "docker compose up -d has been started.",
+            "compose_dir": remote_compose_dir
+        }
     except Exception as e:
         print(f"[ERROR] An error: {e}")
         return {"error": str(e)}
@@ -79,15 +75,17 @@ def create_zip_locally(request, hostname):
     workflow_info_file_path = os.path.join(temp_dir, "workflow-info.json")
     zip_path = os.path.join(temp_dir, "docker-compose.zip")
 
+    # Only keep large objects in memory as long as needed
     workflow_info_raw = WorkflowInfo(request)
-    workflow_info = json.loads(workflow_info_raw.export_to_json())
+    workflow_info_json = workflow_info_raw.export_to_json()
+    workflow_info = json.loads(workflow_info_json)
     services_info = process_opea_services(workflow_info)
     ports_info = services_info["services"]["app"]["ports_info"]
     additional_files_info = services_info.get("additional_files", [])
 
     try:
         with open(env_file_path, 'w') as f:
-            f.write(f"public_host_ip='{hostname}'\n")
+            f.write(f"public_host_ip={hostname}\n")
             for key, value in ports_info.items():
                 f.write(f"{key}={value}\n")
 
@@ -98,7 +96,11 @@ def create_zip_locally(request, hostname):
         with open(workflow_info_file_path, 'w') as f:
             f.write(json.dumps(workflow_info, indent=4))
 
-        with zipfile.ZipFile(zip_path, 'w') as zipf:
+        # Free up memory from large objects as soon as possible
+        del workflow_info_raw, workflow_info_json, workflow_info, services_info, ports_info
+
+        # Use ZIP_DEFLATED for better disk usage (optional, can help with large files)
+        with zipfile.ZipFile(zip_path, 'w', compression=zipfile.ZIP_DEFLATED) as zipf:
             zipf.write(env_file_path, arcname=".env")
             zipf.write(compose_file_path, arcname="compose.yaml")
             zipf.write(workflow_info_file_path, arcname="workflow-info.json")
@@ -107,6 +109,7 @@ def create_zip_locally(request, hostname):
                 source_path = file_info["source"]
                 target_path = file_info["target"]
                 if os.path.isdir(source_path):
+                    # Walk directory and add files one by one to avoid memory spikes
                     for root, _, files in os.walk(source_path):
                         for file in files:
                             full_file_path = os.path.join(root, file)
@@ -114,7 +117,11 @@ def create_zip_locally(request, hostname):
                             arcname = os.path.join(target_path, relative_path)
                             zipf.write(full_file_path, arcname=arcname)
                 else:
+                    # Add file directly by path (no memory spike)
                     zipf.write(source_path, arcname=target_path)
+
+        # Optionally, delete large file paths from temp_dir after zipping
+        del additional_files_info
 
         return zip_path, temp_dir
 
