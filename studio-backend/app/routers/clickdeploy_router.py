@@ -76,7 +76,7 @@ async def check_clickdeploy_status(websocket: WebSocket):
                     except Exception as e:
                         return {"error": f"Failed to parse docker compose ps output: {line}\n{str(e)}"}
                 
-                if len(all_services) == 0 or len(all_services) != int(num_services_str):
+                if len(all_services) != int(num_services_str):
                     # Read nohup.out for error logs
                     ssh = paramiko.SSHClient()
                     ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())

@@ -18,6 +18,8 @@ import {
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import { tableCellClasses } from "@mui/material/TableCell";
+import chatflowsApi from '@/api/chatflows';
+import useApi from '@/hooks/useApi';
 
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
     borderColor: theme.palette.grey[900] + 25,
@@ -38,9 +40,10 @@ const StyledTableRow = styled(TableRow)(() => ({
 
 export default function PodLogsView() {
     const [autoRefresh, setAutoRefresh] = useState(true);
-    const [podsData, setPodsData] = useState({ namespace: '', pods: [] });
+    const [podsData, setPodsData] = useState({ namespace: '', pods: [], workflowName: '' });
     const [selectedPodLogs, setSelectedPodLogs] = useState(null);
     const [selectedPodEvents, setSelectedPodEvents] = useState(null);
+    const [workflowName, setWorkflowName] = useState('');
 
     const logsRef = useRef(null);
     const eventsRef = useRef(null);
@@ -49,6 +52,7 @@ export default function PodLogsView() {
     console.log("ns: ", ns);
 
     const debuglog_endpoint = '/studio-backend/podlogs';
+    const getAllOpeaflowsApi = useApi(chatflowsApi.getAllOpeaflows);
 
     const fetchPodsData = async (ns) => {
         console.log("fetchPodsData", ns);
@@ -93,6 +97,19 @@ export default function PodLogsView() {
         }
     }, [selectedPodEvents]);
 
+    useEffect(() => {
+        getAllOpeaflowsApi.request();
+    }, []);
+
+    useEffect(() => {
+        if (getAllOpeaflowsApi.data && ns) {
+            // Namespace is usually sandbox-<workflow.id>
+            const flows = getAllOpeaflowsApi.data;
+            const found = flows.find(flow => `sandbox-${flow.id}` === ns);
+            setWorkflowName(found ? found.name : '');
+        }
+    }, [getAllOpeaflowsApi.data, ns]);
+
     const toggleAutoRefresh = () => {
         setAutoRefresh(!autoRefresh);
     };
@@ -110,7 +127,12 @@ export default function PodLogsView() {
 
     return (
         <Box sx={{ p: 4 }}>
-            <Typography variant="body1" component="span">Namespace: {podsData.namespace}</Typography>
+            {workflowName && (
+                <Typography variant="h4" component="h2" sx={{ fontWeight: 600, mb: 1 }}>
+                    workflow - {workflowName}
+                </Typography>
+            )}
+            {/* <Typography variant="body1" component="span">Namespace: {podsData.namespace}</Typography> */}
 
             <Box sx={{ my: 2 }}>
                 <Typography variant="body1" component="span">Auto refresh: </Typography>
@@ -138,14 +160,14 @@ export default function PodLogsView() {
                                 <StyledTableCell>{pod.status}</StyledTableCell>
                                 <StyledTableCell>
                                     {pod.events.length > 0 ? (
-                                        <Button variant="outlined" size="small" onClick={() => handleExpandEvents(pod.name)}>Expand</Button>
+                                        <Button variant="outlined" size="small" onClick={() => handleExpandEvents(pod.name)}>Details</Button>
                                     ) : (
                                         <Typography variant="body2" color="text.secondary">No events</Typography>
                                     )}
                                 </StyledTableCell>
                                 <StyledTableCell>
                                     {pod.logs && pod.logs.length > 0 && (
-                                        <Button variant="outlined" size="small" onClick={() => handleExpandLogs(pod.name)}>Expand</Button>
+                                        <Button variant="outlined" size="small" onClick={() => handleExpandLogs(pod.name)}>Details</Button>
                                     )}
                                 </StyledTableCell>
                             </StyledTableRow>

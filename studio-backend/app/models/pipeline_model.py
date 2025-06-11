@@ -76,6 +76,7 @@ class PipelineFlow(BaseModel):
     sandboxStatus: Optional[str] = None
     sandboxAppUrl: Optional[str] = None
     sandboxGrafanaUrl: Optional[str] = None
+    sandboxDebugLogsUrl: Optional[str] = None
     createdDate: datetime
     updatedDate: datetime
 

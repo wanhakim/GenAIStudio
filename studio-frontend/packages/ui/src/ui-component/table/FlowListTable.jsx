@@ -20,7 +20,9 @@ import {
     TableSortLabel,
     Tooltip,
     Typography,
-    useTheme
+    useTheme,
+    Menu,
+    MenuItem
 } from '@mui/material'
 import { tableCellClasses } from '@mui/material/TableCell'
 import FlowListMenu from '../button/FlowListMenu'
@@ -32,14 +34,15 @@ import {
     PlayCircleOutline,
     UnarchiveOutlined,
     ViewTimelineOutlined,
-    InstallDesktopOutlined
+    InstallDesktopOutlined,
+    TroubleshootOutlined,
+    TerminalOutlined
 } from '@mui/icons-material'
 
 import BuildDeploymentPackageDialog from '../dialog/BuildDeploymentPackageDialog'
 import OneClickDeploymentDialog from '../dialog/OneClickDeploymentDialog'
 import chatflowsApi from '@/api/chatflows'
 import config from '@/config'
-import { update } from 'lodash'
 
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
     borderColor: theme.palette.grey[900] + 25,
@@ -112,20 +115,13 @@ export const FlowListTable = ({ data, images, isLoading, filterFunction, updateF
 
     useEffect(() => {
         console.log("triggering websocket")
-        const studio_server_url = config.studio_server_url;
-        const statusCheckEndpoint = config.sandbox_status_endpoint;
         const openConnections = [];
         const openWebSocketConnection = (id, status, type = 'sandbox') => {
-            let wsEndpoint = type === 'clickdeploy' ? config.clickdeploy_status_endpoint : config.sandbox_status_endpoint;
+            let wsEndpoint = config.sandbox_status_endpoint;
             const ws = new WebSocket(`${config.studio_server_url}/${wsEndpoint}`);
             ws.onopen = () => {
                 let payload;
-                if (type === 'clickdeploy') {
-                    // For clickdeploy, send hostname, username, compose_dir
-                    payload = JSON.stringify({ hostname: id.hostname, username: id.username, compose_dir: id.compose_dir });
-                } else {
-                    payload = JSON.stringify({ id: id, status: status });
-                }
+                payload = JSON.stringify({ id: id, status: status });
                 ws.send(payload);
                 console.log('Connected to WebSocket server', id, type);
             };
@@ -135,12 +131,8 @@ export const FlowListTable = ({ data, images, isLoading, filterFunction, updateF
                 if (data.status === 'Done' || data.status === 'Error' || data.status === 'Not Running' || data.status === 'Ready') {
                     ws.close();
                     openConnections.splice(openConnections.indexOf(ws), 1);
-                    if (type === 'clickdeploy') {
-                        updateSandboxStatus(id.id, data.status); // id.id is the workflow id
-                    } else {
-                        updateSandboxStatus(id, data.status, data.sandbox_app_url, data.sandbox_grafana_url, data.sandbox_tracer_url);
-                        updateFlowToServerApi(id, { sandboxStatus: data.status, sandboxAppUrl: data.sandbox_app_url, sandboxGrafanaUrl: data.sandbox_grafana_url, sandboxTracerUrl: data.sandbox_tracer_url });
-                    }
+                    updateSandboxStatus(id, data.status, data.sandbox_app_url, data.sandbox_grafana_url, data.sandbox_tracer_url, data.sandbox_debuglogs_url);
+                    updateFlowToServerApi(id, { sandboxStatus: data.status, sandboxAppUrl: data.sandbox_app_url, sandboxGrafanaUrl: data.sandbox_grafana_url, sandboxTracerUrl: data.sandbox_tracer_url, sandboxDebugLogsUrl: data.sandbox_debuglogs_url });
                 }
             };
             ws.onclose = () => {
@@ -161,10 +153,19 @@ export const FlowListTable = ({ data, images, isLoading, filterFunction, updateF
         };
     }, [sortedData]);
 
-    const updateSandboxStatus = (id, newStatus, sandboxAppUrl = null, sandboxGrafanaUrl = null, sandboxTracerUrl = null) => {
+    const updateSandboxStatus = (id, newStatus, sandboxAppUrl = null, sandboxGrafanaUrl = null, sandboxTracerUrl = null, sandboxDebugLogsUrl = null) => {
         setSortedData((prevData) =>
             prevData.map((row) =>
-                row.id === id ? { ...row, sandboxStatus: newStatus, sandboxAppUrl: sandboxAppUrl || row.sandboxAppUrl, sandboxGrafanaUrl: sandboxGrafanaUrl || row.sandboxGrafanaUrl, sandboxTracerUrl: sandboxTracerUrl || row.sandboxTracerUrl } : row
+                row.id === id
+                    ? {
+                          ...row,
+                          sandboxStatus: newStatus,
+                          sandboxAppUrl: sandboxAppUrl || row.sandboxAppUrl,
+                          sandboxGrafanaUrl: sandboxGrafanaUrl || row.sandboxGrafanaUrl,
+                          sandboxTracerUrl: sandboxTracerUrl || row.sandboxTracerUrl,
+                          sandboxDebugLogsUrl: sandboxDebugLogsUrl || row.sandboxDebugLogsUrl
+                      }
+                    : row
             )
         );
     };
@@ -172,7 +173,14 @@ export const FlowListTable = ({ data, images, isLoading, filterFunction, updateF
     const handleRunSandbox = async (id) => {
         updateSandboxStatus(id, 'Sending Request');
         const res = await chatflowsApi.deploySandbox(id)
-        updateSandboxStatus(id, res.data?.sandboxStatus || 'Error', res.data?.sandboxAppUrl, res.data?.sandboxGrafanaUrl, res.data?.sandboxTracerUrl)
+        updateSandboxStatus(
+            id,
+            res.data?.sandboxStatus || 'Error',
+            res.data?.sandboxAppUrl,
+            res.data?.sandboxGrafanaUrl,
+            res.data?.sandboxTracerUrl,
+            res.data?.sandboxDebugLogsUrl
+        );
     }
 
     const handleStopSandbox = async (id) => {
@@ -267,6 +275,11 @@ export const FlowListTable = ({ data, images, isLoading, filterFunction, updateF
         console.log('Opening URL', url);
         window.open(url, '_blank');
     }
+
+    // Add state for observability menu
+    const [observabilityAnchorEl, setObservabilityAnchorEl] = useState(null);
+    const [observabilityRow, setObservabilityRow] = useState(null);
+
     return (
         <>
             <TableContainer sx={{ border: 1, borderColor: theme.palette.grey[900] + 25, borderRadius: 2 }} component={Paper}>
@@ -283,7 +296,7 @@ export const FlowListTable = ({ data, images, isLoading, filterFunction, updateF
                                     Workflow Name
                                 </TableSortLabel>
                             </StyledTableCell>
-                            <StyledTableCell style={{ width: '15%' }} key='1a'>
+                            <StyledTableCell style={{ width: '5%' }} key='1a'>
                                 <Stack
                                     direction={{ xs: 'column', sm: 'row' }}
                                     spacing={1}
@@ -301,7 +314,7 @@ export const FlowListTable = ({ data, images, isLoading, filterFunction, updateF
                                     Sandbox Status
                                 </Stack>
                             </StyledTableCell>
-                            <StyledTableCell style={{ width: '30%' }} key='2'>
+                            <StyledTableCell style={{ width: '5%' }} key='2'>
                                 <Stack
                                     direction={{ xs: 'column', sm: 'row' }}
                                     spacing={1}
@@ -310,22 +323,13 @@ export const FlowListTable = ({ data, images, isLoading, filterFunction, updateF
                                     Launch App
                                 </Stack>
                             </StyledTableCell>
-                            <StyledTableCell style={{ width: '30%' }} key='3'>
+                            <StyledTableCell style={{ width: '5%' }} key='3'>
                                 <Stack
                                     direction={{ xs: 'column', sm: 'row' }}
                                     spacing={1}
                                     justifyContent='center'
                                 >
-                                    Launch Monitoring Dashboard
-                                </Stack>
-                            </StyledTableCell>
-                            <StyledTableCell style={{ width: '30%' }} key='4'>
-                                <Stack
-                                    direction={{ xs: 'column', sm: 'row' }}
-                                    spacing={1}
-                                    justifyContent='center'
-                                >
-                                    Launch Tracer
+                                    Observability
                                 </Stack>
                             </StyledTableCell>
                             {/* <StyledTableCell style={{ width: '5%' }} key='5'>
@@ -346,7 +350,7 @@ export const FlowListTable = ({ data, images, isLoading, filterFunction, updateF
                                     1 Click Deployment
                                 </Stack>
                             </StyledTableCell>
-                            <StyledTableCell style={{ width: '25%' }} key='6'>
+                            <StyledTableCell style={{ width: '5%' }} key='6'>
                                 <Stack
                                     direction={{ xs: 'column', sm: 'row' }}
                                     spacing={1}
@@ -355,7 +359,7 @@ export const FlowListTable = ({ data, images, isLoading, filterFunction, updateF
                                     Actions
                                 </Stack>
                             </StyledTableCell>
-                            <StyledTableCell style={{ width: '25%' }} key='7'>
+                            <StyledTableCell style={{ width: '15%' }} key='7'>
                                 <TableSortLabel
                                     active={orderBy === 'updatedDate'}
                                     direction={order}
@@ -482,6 +486,7 @@ export const FlowListTable = ({ data, images, isLoading, filterFunction, updateF
                                                             color='primary'
                                                             startIcon={<PlayCircleOutline />}
                                                             onClick={() => {
+                                                                window.open(`/debuglogs/sandbox-${row.id}`, '_blank');
                                                                 handleRunSandbox(row.id);
                                                             }}
                                                             disabled={row.sandboxStatus === 'Stopping'}
@@ -531,6 +536,7 @@ export const FlowListTable = ({ data, images, isLoading, filterFunction, updateF
                                                 </Tooltip>
                                             </Stack>
                                         </StyledTableCell>
+                                        {/* Consolidated Observability column */}
                                         <StyledTableCell key='3'>
                                             <Stack
                                                 direction={{ xs: 'column', sm: 'row' }}
@@ -538,41 +544,56 @@ export const FlowListTable = ({ data, images, isLoading, filterFunction, updateF
                                                 justifyContent='center'
                                                 alignItems='center'
                                             >
-                                                <Tooltip title={row.sandboxStatus === 'Ready' ? "Click to open Monitoring Dashboard" : "Sandbox is not running"}>
+                                                <Tooltip title={row.sandboxStatus === 'Ready' ? "Observability Options" : "Sandbox is not running"}>
                                                     <span>
                                                         <Button
                                                             color={row.sandboxStatus === 'Not Running' ? 'inherit' : 'primary'}
-                                                            startIcon={<Analytics />}
-                                                            onClick={() => {
-                                                                handleOpenUrl(row.sandboxGrafanaUrl);
-                                                            }}
+                                                            startIcon={<TroubleshootOutlined />}
                                                             disabled={row.sandboxStatus !== 'Ready'}
+                                                            aria-controls={`observability-menu-${row.id}`}
+                                                            aria-haspopup="true"
+                                                            onClick={(event) => {
+                                                                setObservabilityAnchorEl(event.currentTarget);
+                                                                setObservabilityRow(row);
+                                                            }}
                                                         >
                                                         </Button>
                                                     </span>
                                                 </Tooltip>
-                                            </Stack>
-                                        </StyledTableCell>
-                                        <StyledTableCell key='4'>
-                                            <Stack
-                                                direction={{ xs: 'column', sm: 'row' }}
-                                                spacing={1}
-                                                justifyContent='center'
-                                                alignItems='center'
-                                            >
-                                                <Tooltip title={row.sandboxStatus === 'Ready' ? "Click to open Tracer" : "Sandbox is not running"}>
-                                                    <span>
-                                                        <Button
-                                                            color={row.sandboxStatus === 'Not Running' ? 'inherit' : 'primary'}
-                                                            startIcon={<ViewTimelineOutlined sx={{ transform: 'scaleX(-1)' }}/>}
-                                                            onClick={() => {
-                                                                handleOpenUrl(row.sandboxTracerUrl); // Replace with appropriate URL if needed
-                                                            }}
-                                                            disabled={row.sandboxStatus !== 'Ready'}
-                                                        >
-                                                        </Button>
-                                                    </span>
-                                                </Tooltip>
+                                                <Menu
+                                                    id={`observability-menu-${row.id}`}
+                                                    anchorEl={observabilityAnchorEl}
+                                                    open={Boolean(observabilityAnchorEl) && observabilityRow?.id === row.id}
+                                                    onClose={() => setObservabilityAnchorEl(null)}
+                                                >
+                                                    <MenuItem
+                                                        onClick={() => {
+                                                            handleOpenUrl(row.sandboxGrafanaUrl);
+                                                            setObservabilityAnchorEl(null);
+                                                        }}
+                                                        disabled={row.sandboxStatus !== 'Ready'}
+                                                    >
+                                                        <Analytics fontSize="small" sx={{ mr: 1 }} /> Monitoring Dashboard
+                                                    </MenuItem>
+                                                    <MenuItem
+                                                        onClick={() => {
+                                                            handleOpenUrl(row.sandboxTracerUrl);
+                                                            setObservabilityAnchorEl(null);
+                                                        }}
+                                                        disabled={row.sandboxStatus !== 'Ready'}
+                                                    >
+                                                        <ViewTimelineOutlined fontSize="small" sx={{ mr: 1, transform: 'scaleX(-1)' }} /> LLM Call Traces
+                                                    </MenuItem>
+                                                    <MenuItem
+                                                        onClick={() => {
+                                                            handleOpenUrl(row.sandboxDebugLogsUrl);
+                                                            setObservabilityAnchorEl(null);
+                                                        }}
+                                                        disabled={row.sandboxStatus !== 'Ready'}
+                                                    >
+                                                        <TerminalOutlined fontSize="small" sx={{ mr: 1 }} /> Debug Logs
+                                                    </MenuItem>
+                                                </Menu>
                                             </Stack>
                                         </StyledTableCell>
                                         {/* <StyledTableCell key='5'>
