@@ -21,7 +21,7 @@ async def get_all_pods_in_namespace(namespace: str):
 
         # Fetch logs related to the pod
         try:
-            pod_logs = core_v1_api.read_namespaced_pod_log(name=pod_name, namespace=namespace, tail_lines=50)
+            pod_logs = core_v1_api.read_namespaced_pod_log(name=pod_name, namespace=namespace, tail_lines=200)
             for line in pod_logs.splitlines():
                 log_entries.append(line)
         except Exception as e:
@@ -66,21 +66,3 @@ async def get_all_pods_in_namespace(namespace: str):
         })
 
     return {"namespace": namespace, "pods": pod_list}
-
-@router.get("/podlogs/{namespace}/{pod_name}", summary="Fetch logs for a specific pod by name")
-async def pod_logs_by_namespace_and_pod_name(namespace: str, pod_name: str):
-    core_v1_api = client.CoreV1Api()
-
-    try:
-        # Fetch the logs for the specified pod
-        pod_logs = core_v1_api.read_namespaced_pod_log(name=pod_name, namespace=namespace, tail_lines=50)
-        log_entries = []
-        for line in pod_logs.splitlines():
-            log_entries.append(line)
-    except client.exceptions.ApiException as e:
-        if e.status == 404:
-            raise HTTPException(status_code=404, detail=f"Pod '{pod_name}' not found in namespace '{namespace}'")
-        else:
-            raise HTTPException(status_code=500, detail=f"Error fetching pod logs: {str(e)}")
-
-    return {"pod_name": pod_name, "namespace": namespace, "log": log_entries}
