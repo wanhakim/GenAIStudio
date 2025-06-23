@@ -170,7 +170,7 @@ class AppService:
         elif self.services[node_id].service_type == ServiceType.LLM:
             # convert TGI/vLLM to unified OpenAI /v1/chat/completions format
             next_inputs = {}
-            next_inputs["model"] = inputs.get("model") or "Intel/neural-chat-7b-v3-3"
+            next_inputs["model"] = inputs.get("model") or "NA"
             if inputs.get("inputs"):
                 next_inputs["messages"] = [{"role": "user", "content": inputs["inputs"]}]
             elif inputs.get("query") and inputs.get("documents"):

@@ -21,7 +21,7 @@ app-frontend:
   depends_on:
   - app-backend
   ports:
-    - 5175:80
+    - 5275:80
   environment:
     - no_proxy=${no_proxy}
     - https_proxy=${https_proxy}
@@ -43,7 +43,7 @@ app-nginx:
     - https_proxy=${https_proxy}
     - http_proxy=${http_proxy}
     - FRONTEND_SERVICE_IP=${public_host_ip}
-    - FRONTEND_SERVICE_PORT=5175
+    - FRONTEND_SERVICE_PORT=5275
     - BACKEND_SERVICE_NAME=app-backend
     - BACKEND_SERVICE_IP=${public_host_ip}
     - BACKEND_SERVICE_PORT=8899

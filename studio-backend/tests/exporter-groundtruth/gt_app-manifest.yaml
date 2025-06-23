@@ -1652,7 +1652,7 @@ metadata:
 spec:
   type: ClusterIP
   ports:
-  - port: 5175
+  - port: 5275
     targetPort: 80
     protocol: TCP
     name: app-frontend
