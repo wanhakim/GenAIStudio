@@ -1,5 +1,10 @@
 FROM node:23-alpine
 
+ARG http_proxy
+ARG https_proxy
+ENV http_proxy=$http_proxy
+ENV https_proxy=$https_proxy
+
 # Install necessary packages
 RUN apk update && apk upgrade && \
     apk add --no-cache gcompat python3 make g++ git \

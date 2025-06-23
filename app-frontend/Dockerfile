@@ -4,6 +4,11 @@
 # Use node 20.11.1 as the base image
 FROM node:latest AS vite-app
 
+ARG http_proxy
+ARG https_proxy
+ENV http_proxy=$http_proxy
+ENV https_proxy=$https_proxy
+
 COPY react /usr/app/react
 WORKDIR /usr/app/react
 

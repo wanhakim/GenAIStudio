@@ -100,6 +100,7 @@ jobs:
           if kubectl get namespace monitoring; then
             kubectl delete -f manifests/monitoring-manifest.yaml || true
             kubectl wait --for=delete pod --all --namespace=monitoring --timeout=300s
+            kubectl delete ns monitoring || true
           fi
         working-directory: ${{ github.workspace }}/setup-scripts/setup-genai-studio/
 

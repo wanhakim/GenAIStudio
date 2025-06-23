@@ -5,9 +5,12 @@
     - vars.yml
   tasks:
     - name: Build Docker image
-      command: docker build -t "{{ item.image_name }}:latest" .
+      command: docker build --build-arg http_proxy --build-arg https_proxy -t "{{ item.image_name }}:latest" .
       args:
         chdir: "{{ item.directory }}"
+      environment:
+        http_proxy: "{{ http_proxy }}"
+        https_proxy: "{{ http_proxy }}"
       loop:
         - { directory: '../../studio-frontend/', image_name: 'studio-frontend' }
         - { directory: '../../studio-backend/', image_name: 'studio-backend' }
@@ -17,6 +20,9 @@
 
     - name: Tag Docker image
       command: docker tag "{{ item.image_name }}:latest" "{{ container_registry }}/{{ item.image_name }}:{{ container_tag }}"
+      environment:
+        http_proxy: "{{ http_proxy }}"
+        https_proxy: "{{ http_proxy }}"
       loop:
         - { image_name: 'studio-frontend' }
         - { image_name: 'studio-backend' }
@@ -25,6 +31,9 @@
 
     - name: Push Docker image
       command: docker push "{{ container_registry }}/{{ item.image_name }}:{{ container_tag }}"
+      environment:
+        http_proxy: "{{ http_proxy }}"
+        https_proxy: "{{ http_proxy }}"
       loop:
         - { image_name: 'studio-frontend' }
         - { image_name: 'studio-backend' }

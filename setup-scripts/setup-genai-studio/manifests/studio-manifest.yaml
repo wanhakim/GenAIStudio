@@ -468,6 +468,8 @@ spec:
         command: ["/bin/sh", "-c"]
         args:
           - |
+            export http_proxy=${HTTP_PROXY}
+            export https_proxy=${HTTP_PROXY}
             OWNER=$(echo ${KC_ASSETS_GIT_URL} | sed -E 's|https://github.com/([^/]+)/([^/]+)/tree/([^/]+)/.*|\1|')
             REPO=$(echo ${KC_ASSETS_GIT_URL} | sed -E 's|https://github.com/([^/]+)/([^/]+)/tree/([^/]+)/.*|\2|')
             BRANCH=$(echo ${KC_ASSETS_GIT_URL} | sed -E 's|https://github.com/[^/]+/[^/]+/tree/([^/]+)/.*|\1|')

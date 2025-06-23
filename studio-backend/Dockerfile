@@ -1,6 +1,12 @@
 # Use an official Python runtime as a parent image
 FROM python:3.11-slim
 
+# Add ARG and ENV for http_proxy and https_proxy to support proxy during build and runtime
+ARG http_proxy
+ARG https_proxy
+ENV http_proxy=$http_proxy
+ENV https_proxy=$https_proxy
+
 # Set the working directory in the container
 WORKDIR /usr/src/
 

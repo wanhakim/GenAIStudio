@@ -1,2 +1,3 @@
 container_registry: 'opea'
 container_tag: 'latest'
+http_proxy: ''

@@ -81,7 +81,6 @@
         - curl
         - gnupg
         - lsb-release
-        - util-linux-extra
       state: present
     environment:
       http_proxy: "{{ http_proxy }}"

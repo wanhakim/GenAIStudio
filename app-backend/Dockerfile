@@ -1,5 +1,10 @@
 FROM python:3.11-slim
 
+ARG http_proxy
+ARG https_proxy
+ENV http_proxy=$http_proxy
+ENV https_proxy=$https_proxy
+
 RUN apt-get update -y && apt-get install -y --no-install-recommends --fix-missing \
     libsqlite3-0=3.40.1-2+deb12u1 \
     libgl1-mesa-glx=22.3.6-1+deb12u1 \
