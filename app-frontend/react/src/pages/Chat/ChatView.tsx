@@ -23,6 +23,7 @@ import PromptSettings from "@components/PromptSettings/PromptSettings";
 import { Message, MessageRole } from "@redux/Conversation/Conversation";
 import { getCurrentTimeStamp, readFilesAndSummarize } from "@utils/utils";
 import ChatSources from "@components/Chat_Sources/ChatSources";
+import { useNavigateWithQuery } from "@utils/navigationAndAxiosWithQuery";
 
 const ChatView = () => {
   const { name } = useAppSelector(userSelector);
@@ -47,6 +48,7 @@ const ChatView = () => {
 
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
+  const navigateWithQuery = useNavigateWithQuery();
 
   // existing chat
   const { conversation_id } = useParams();
@@ -163,7 +165,7 @@ const ChatView = () => {
 
       // no match for view, go home
       console.log("Go Home");
-      navigate("/");
+      navigateWithQuery("/");
     }
   }, [conversation_id, name]);
 

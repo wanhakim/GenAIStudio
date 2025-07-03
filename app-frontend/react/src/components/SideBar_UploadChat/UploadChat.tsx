@@ -14,7 +14,7 @@ import {
 import { useAppDispatch, useAppSelector } from "@redux/store";
 import { userSelector } from "@redux/User/userSlice";
 import { useEffect, useRef } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigateWithQuery } from "@utils/navigationAndAxiosWithQuery";
 
 interface UploadChatProps {
   asideOpen: boolean;
@@ -25,7 +25,7 @@ const UploadChat: React.FC<UploadChatProps> = ({ asideOpen, setAsideOpen }) => {
   const dispatch = useAppDispatch();
   const { selectedConversationHistory } = useAppSelector(conversationSelector);
 
-  const navigate = useNavigate();
+  const navigateWithQuery = useNavigateWithQuery();
 
   const fileInputRef = useRef<HTMLInputElement>(null);
   const newUpload = useRef<boolean>(false);
@@ -58,7 +58,7 @@ const UploadChat: React.FC<UploadChatProps> = ({ asideOpen, setAsideOpen }) => {
           "Conversation successfully uploaded",
           NotificationSeverity.SUCCESS,
         );
-        navigate(`/chat/${responseData}`);
+        navigateWithQuery(`/chat/${responseData}`);
       } else {
         newUpload.current = false;
         notify("Error saving conversation", NotificationSeverity.ERROR);

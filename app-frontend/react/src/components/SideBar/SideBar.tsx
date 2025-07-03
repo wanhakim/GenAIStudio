@@ -1,3 +1,4 @@
+import React from "react";
 import { Link } from "react-router-dom";
 import { useTheme } from "@mui/material/styles";
 import { SvgIconProps } from "@mui/material/SvgIcon";
@@ -25,6 +26,7 @@ import { Conversation } from "@redux/Conversation/Conversation";
 // import UploadChat from "@components/SideBar_UploadChat/UploadChat";
 import { KeyboardBackspace } from "@mui/icons-material";
 import { useDispatch } from "react-redux";
+import { useNavigateWithQuery, useToWithQuery } from "@utils/navigationAndAxiosWithQuery";
 
 interface SideBarProps {
   asideOpen: boolean;
@@ -69,10 +71,11 @@ export const LinkedMenuItem: React.FC<LinkedMenuItemProps> = ({
   sx,
   open,
 }) => {
+  const toWithQuery = useToWithQuery();
   return (
     <MenuItem sx={sx}>
       <Link
-        to={to}
+        to={toWithQuery(to)}
         onClick={onClick}
         tabIndex={open ? 0 : -1}
         aria-hidden={!open}

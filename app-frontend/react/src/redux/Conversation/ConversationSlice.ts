@@ -17,11 +17,12 @@ import {
 } from "./Conversation";
 import { getCurrentTimeStamp } from "@utils/utils";
 import { createAsyncThunkWrapper } from "@redux/thunkUtil";
-import axios from "axios";
+import { axiosClient } from "../../utils/navigationAndAxiosWithQuery";
 
 import config, {
   CHAT_QNA_URL,
   DATA_PREP_URL,
+  DATA_PREP_INGEST_URL,
   DATA_PREP_GET_URL,
   DATA_PREP_DELETE_URL,
   CHAT_HISTORY_CREATE,
@@ -274,7 +275,9 @@ export const ConversationSlice = createSlice({
           id: action.payload,
           first_query: state.selectedConversationHistory[1].content,
         });
-        window.history.pushState({}, "", `/chat/${action.payload}`);
+        // Retain current query string in the URL
+        const currentQuery = window.location.search;
+        window.history.pushState({}, "", `/chat/${action.payload}${currentQuery}`);
       }
     });
     builder.addCase(getAllFilesInDataSource.fulfilled, (state, action) => {
@@ -286,7 +289,7 @@ export const ConversationSlice = createSlice({
 export const getSupportedUseCases = createAsyncThunkWrapper(
   "public/usecase_configs.json",
   async (_: void, { getState }) => {
-    const response = await axios.get("/usecase_configs.json");
+    const response = await axiosClient.get("/usecase_configs.json");
     store.dispatch(setUseCases(response.data));
 
     // @ts-ignore
@@ -307,7 +310,7 @@ export const getSupportedUseCases = createAsyncThunkWrapper(
 export const getSupportedModels = createAsyncThunkWrapper(
   "public/model_configs.json",
   async (_: void, { getState }) => {
-    const response = await axios.get("/model_configs.json");
+    const response = await axiosClient.get("/model_configs.json");
     store.dispatch(setModels(response.data));
 
     // @ts-ignore
@@ -328,11 +331,10 @@ export const getSupportedModels = createAsyncThunkWrapper(
 
 export const getAllConversations = createAsyncThunkWrapper(
   "conversation/getAllConversations",
-  // async ({ user, useCase }: { user: string; useCase: string }, {}) => {
   async ({ user }: { user: string; }, {}) => {
 
     //TODO: Add useCase
-    const response = await axios.post(CHAT_HISTORY_GET, {
+    const response = await axiosClient.post(CHAT_HISTORY_GET, {
       user,
     });
 
@@ -345,7 +347,7 @@ export const getAllConversations = createAsyncThunkWrapper(
 export const getConversationHistory = createAsyncThunkWrapper(
   "conversation/getConversationHistory",
   async ({ user, conversationId }: { user: string; conversationId: string }, {}) => {
-    const response = await axios.post(CHAT_HISTORY_GET, {
+    const response = await axiosClient.post(CHAT_HISTORY_GET, {
       user,
       id: conversationId,
     });
@@ -372,8 +374,7 @@ export const submitDataSourceURL = createAsyncThunkWrapper(
     dispatch(setDataSourceUrlStatus("pending"));
     const body = new FormData();
     body.append("link_list", JSON.stringify(link_list));
-    // body.append("parent", "appData"); // TODO: this did not work, in an attempt to sort data types
-    const response = await axios.post(DATA_PREP_URL, body);
+    const response = await axiosClient.post(DATA_PREP_INGEST_URL, body);
     dispatch(getAllFilesInDataSource({ knowledgeBaseId: "default" }));
     return response.data;
   },
@@ -383,9 +384,8 @@ export const getAllFilesInDataSource = createAsyncThunkWrapper(
   "conversation/getAllFilesInDataSource",
   async ({ knowledgeBaseId }: { knowledgeBaseId: string }, {}) => {
     const body = {
-      knowledge_base_id: knowledgeBaseId,
     };
-    const response = await axios.post(DATA_PREP_GET_URL, body);
+    const response = await axiosClient.post(DATA_PREP_GET_URL, body);
     return response.data;
   },
 );
@@ -395,7 +395,7 @@ export const uploadFile = createAsyncThunkWrapper(
   async ({ file }: { file: File }, { dispatch }) => {
     const body = new FormData();
     body.append("files", file);
-    const response = await axios.post(DATA_PREP_URL, body);
+    const response = await axiosClient.post(DATA_PREP_INGEST_URL, body);
     dispatch(getAllFilesInDataSource({ knowledgeBaseId: "default" }));
     return response.data;
   },
@@ -405,9 +405,10 @@ export const deleteMultipleInDataSource = createAsyncThunkWrapper(
   "conversation/deleteConversations",
   async ({ files }: { files: string[] }, { dispatch }) => {
     const promises = files.map((file) =>
-      axios
+      axiosClient
         .post(DATA_PREP_DELETE_URL, {
-          file_path: file.split("_")[1],
+          // file_path: file.split("_")[1],
+          file_path: file, // assuming file is the full path
         })
         .then((response) => {
           return response.data;
@@ -435,7 +436,7 @@ export const deleteMultipleInDataSource = createAsyncThunkWrapper(
 export const deleteInDataSource = createAsyncThunkWrapper(
   "conversation/deleteInDataSource",
   async ({ file }: { file: any }, { dispatch }) => {
-    const response = await axios.post(DATA_PREP_DELETE_URL, {
+    const response = await axiosClient.post(DATA_PREP_DELETE_URL, {
       file_path: file,
     });
     dispatch(getAllFilesInDataSource({ knowledgeBaseId: "default" }));
@@ -453,7 +454,7 @@ export const saveConversationtoDatabase = createAsyncThunkWrapper(
     //TODO: if we end up with a systemPrompt for code change this
     const firstMessageIndex = state.conversationReducer.type === "code" ? 0 : 1;
 
-    const response = await axios.post(CHAT_HISTORY_CREATE, {
+    const response = await axiosClient.post(CHAT_HISTORY_CREATE, {
       data: {
         user: state.userReducer.name,
         messages: selectedConversationHistory,
@@ -484,7 +485,7 @@ export const deleteConversations = createAsyncThunkWrapper(
     { dispatch },
   ) => {
     const promises = conversationIds.map((id) =>
-      axios
+      axiosClient
         .post(CHAT_HISTORY_DELETE, {
           user,
           id: id,
@@ -520,7 +521,7 @@ export const deleteConversation = createAsyncThunkWrapper(
     { user, conversationId, useCase }: { user: string; conversationId: string; useCase: string },
     { dispatch },
   ) => {
-    const response = await axios.post(CHAT_HISTORY_DELETE, {
+    const response = await axiosClient.post(CHAT_HISTORY_DELETE, {
       user,
       id: conversationId,
     });
@@ -683,7 +684,21 @@ const eventStream = (type: string, body: any, conversationId: string = "") => {
                 store.dispatch(setOnGoingResult(result));
                 parsed = true;
               } catch (e) {
-                console.warn("JSON parsing failed", e);
+                // If JSON parsing fails, we will try to extract the text from the message
+                // This is a fallback for cases where the API returns a non-JSON response
+                // Example: msg.data = "data: b'Hello, world!'</s>"
+                // We will extract the text between b' and '</s>'
+                // Note: This is a workaround and should be used with caution, as it assumes a specific format
+                // and may not work for all cases.
+                const match = msg.data.match(/data:\s*b'([^']*)'/);
+                if (match && match[1] !== "</s>") {
+                  const extractedText = match[1];
+                  result += extractedText;
+                  store.dispatch(setOnGoingResult(result));
+                } else {
+                  result += msg.data; // Fallback to adding the raw data
+                  store.dispatch(setOnGoingResult(result));
+                }
               }
 
               // Fallback if JSON wasn't parsed

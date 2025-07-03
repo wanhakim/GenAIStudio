@@ -6,7 +6,7 @@ import PromptSettings from "@components/PromptSettings/PromptSettings";
 import { UI_SELECTION } from "@root/config";
 import styles from "./Home.module.scss";
 
-import { useNavigate } from "react-router-dom";
+import { useNavigateWithQuery } from "@utils/navigationAndAxiosWithQuery";
 import { useAppDispatch, useAppSelector } from "@redux/store";
 // import { userSelector } from "@redux/User/userSlice";
 import {
@@ -42,14 +42,13 @@ const Home = () => {
 
   // const { name } = useAppSelector(userSelector);
 
-  const navigate = useNavigate();
+  const navigateWithQuery = useNavigateWithQuery();
 
   const handleSendMessage = async (messageContent: string) => {
     const initialState: InitialStateProps = {
       initialMessage: messageContent,
     };
-
-    navigate(`/${type}/new`, { state: initialState });
+    navigateWithQuery(`/${type}/new`, { state: initialState });
   };
 
   const handleTypeChange = (updateType: string) => {

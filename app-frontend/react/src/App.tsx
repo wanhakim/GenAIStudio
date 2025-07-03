@@ -23,10 +23,13 @@ import { Box, styled, Typography } from "@mui/material";
 import Home from "@pages/Home/Home";
 import ChatView from "@pages/Chat/ChatView";
 
-const HistoryView = React.lazy(() => import("@pages/History/HistoryView"));
-const DataSourceManagement = React.lazy(
-  () => import("@pages/DataSource/DataSourceManagement")
-);
+// const HistoryView = React.lazy(() => import("@pages/History/HistoryView"));
+// const DataSourceManagement = React.lazy(
+//   () => import("@pages/DataSource/DataSourceManagement")
+// );
+
+import HistoryView from "@pages/History/HistoryView";
+import DataSourceManagement from "@pages/DataSource/DataSourceManagement";
 
 const LoadingBox = styled(Box)({
   display: "flex",

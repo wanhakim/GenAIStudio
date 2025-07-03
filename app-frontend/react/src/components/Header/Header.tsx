@@ -28,6 +28,7 @@ import {
   // setUseCase,
 } from "@redux/Conversation/ConversationSlice";
 import DownloadChat from "@components/Header_DownloadChat/DownloadChat";
+import { useNavigateWithQuery } from "@utils/navigationAndAxiosWithQuery";
 
 interface HeaderProps {
   asideOpen: boolean;
@@ -59,6 +60,7 @@ const Header: React.FC<HeaderProps> = ({
   const toggleRef = useRef<HTMLDivElement>(null);
 
   const navigate = useNavigate();
+  const navigateWithQuery = useNavigateWithQuery();
 
   // const dispatch = useAppDispatch();
   const { role, name } = useAppSelector(userSelector);
@@ -86,7 +88,7 @@ const Header: React.FC<HeaderProps> = ({
   // };
 
   const newChat = () => {
-    navigate("/");
+    navigateWithQuery("/");
     setAsideOpen(false);
   };
 

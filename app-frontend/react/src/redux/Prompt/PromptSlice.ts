@@ -6,7 +6,7 @@ import { createAsyncThunkWrapper } from "@redux/thunkUtil";
 import { RootState } from "@redux/store";
 import { PROMPT_MANAGER_CREATE, PROMPT_MANAGER_GET, PROMPT_MANAGER_DELETE } from "@root/config";
 import { NotificationSeverity, notify } from "@components/Notification/Notification";
-import axios from "axios";
+import { axiosClient } from "../../utils/navigationAndAxiosWithQuery";
 
 type promptReducer = {
   prompts: Prompt[];
@@ -51,7 +51,7 @@ export default PromptSlice.reducer;
 export const getPrompts = createAsyncThunkWrapper("prompts/getPrompts", async (_: void, { getState }) => {
   // @ts-ignore
   const state: RootState = getState();
-  const response = await axios.post(PROMPT_MANAGER_GET, {
+  const response = await axiosClient.post(PROMPT_MANAGER_GET, {
     user: state.userReducer.name,
   });
   return response.data;
@@ -62,7 +62,7 @@ export const addPrompt = createAsyncThunkWrapper(
   async ({ promptText }: { promptText: string }, { dispatch, getState }) => {
     // @ts-ignore
     const state: RootState = getState();
-    const response = await axios.post(PROMPT_MANAGER_CREATE, {
+    const response = await axiosClient.post(PROMPT_MANAGER_CREATE, {
       prompt_text: promptText,
       user: state.userReducer.name,
       //TODO: Would be nice to support type to set prompts for each
@@ -83,7 +83,7 @@ export const deletePrompt = createAsyncThunkWrapper(
     const state: RootState = getState();
     const user = state.userReducer.name;
 
-    const response = await axios.post(PROMPT_MANAGER_DELETE, {
+    const response = await axiosClient.post(PROMPT_MANAGER_DELETE, {
       user: user,
       prompt_id: promptId,
       prompt_text: promptText,

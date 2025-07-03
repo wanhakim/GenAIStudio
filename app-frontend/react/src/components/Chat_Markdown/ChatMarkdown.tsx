@@ -9,7 +9,8 @@ import { Button, Collapse, Box } from "@mui/material";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import ExpandLessIcon from "@mui/icons-material/ExpandLess";
 
-const CodeRender = lazy(() => import("./CodeRender/CodeRender"));
+// const CodeRender = lazy(() => import("./CodeRender/CodeRender"));
+import CodeRender from "./CodeRender/CodeRender";
 
 type MarkdownProps = {
   content: string;
