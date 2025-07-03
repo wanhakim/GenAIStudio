@@ -19,7 +19,7 @@ module.exports = defineConfig({
   reporter: [['html', { outputFolder: 'playwright-report' }]],
   use: {
     /* Update Base URL to use in actions like `await page.goto('/')`. */
-    baseURL: 'http://<baseURL>',
+    baseURL: 'https://localhost:30007',
 
     video: 'retain-on-failure',
     screenshot: 'only-on-failure'
