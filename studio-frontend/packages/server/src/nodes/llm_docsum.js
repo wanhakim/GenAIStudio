@@ -1,6 +1,6 @@
 'use strict'
 Object.defineProperty(exports, '__esModule', { value: true })
-class OPEA_LLM_TGi {
+class OPEA_LLM_DOCSUM {
     constructor() {
         //@ts-ignore
         // this.loadMethods = {
@@ -8,14 +8,14 @@ class OPEA_LLM_TGi {
         //         return await (0, modelLoader_1.getModels)(modelLoader_1.MODEL_TYPE.EMBEDDING, 'openAIEmbedding_LlamaIndex');
         //     }
         // };
-        this.label = 'LLM Text Generation'
-        this.name = 'opea_service@llm_tgi'
+        this.label = 'LLM Document Summarization'
+        this.name = 'opea_service@llm_docsum'
         this.version = 1.0
         this.type = 'GeneratedDoc'
-        this.icon = 'llm.png'
+        this.icon = 'assets/llm.png'
         this.category = 'LLM'
-        this.description = 'LLM Text Generation Inference'
-        this.baseClasses = [this.type, 'StreamingResponse', 'ChatCompletion']
+        this.description = 'LLM Document Summarization Inference'
+        this.baseClasses = [this.type, 'StreamingResponse']
         this.tags = ['OPEA']
         this.inMegaservice = true
         this.dependent_services = {
@@ -28,7 +28,7 @@ class OPEA_LLM_TGi {
             {
                 label: 'LLM Params Document',
                 name: 'text',
-                type: 'LLMParamsDoc|ChatCompletionRequest|SearchedDoc'
+                type: 'LLMParamsDoc|DocSumChatCompletionRequest'
             },
             {
                 label: 'Model Name',
@@ -140,5 +140,5 @@ class OPEA_LLM_TGi {
         // return model;
     }
 }
-module.exports = { nodeClass: OPEA_LLM_TGi }
+module.exports = { nodeClass: OPEA_LLM_DOCSUM }
 //# sourceMappingURL=OpenAIEmbedding_LlamaIndex.js.map

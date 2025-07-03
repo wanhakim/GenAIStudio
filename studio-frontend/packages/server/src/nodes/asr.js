@@ -5,40 +5,33 @@ Object.defineProperty(exports, '__esModule', { value: true })
 // const llamaindex_1 = require('llamaindex')
 class OPEAEmbeddings {
     constructor() {
-        this.label = 'TEI Embedding Langchain'
-        this.name = 'opea_service@embedding_tei_langchain'
+        this.label = 'Audio and Speech Recognition Whisper'
+        this.name = 'opea_service@asr'
         this.version = 1.0
-        this.type = 'EmbedDoc'
+        this.type = 'AudioTranscriptionResponse'
         this.icon = 'assets/embeddings.png'
-        this.category = 'Embeddings'
-        this.description = 'Text Embedding Inference using Langchain'
-        this.baseClasses = [this.type, 'EmbeddingResponse', 'ChatCompletionRequest']
+        this.category = 'Audio and Speech Recognition'
+        this.description = 'Transcribe audio and video files using OpenAI Whisper model. Supports various audio formats including mp3, wav, and mp4.'
+        this.baseClasses = [this.type, 'DocSumChatCompletionRequest']
         this.tags = ['OPEA']
         this.inMegaservice = true
         this.dependent_services = {
-            'tei': {
-                'modelName': '',
+            'whisper': {
                 'huggingFaceToken': ''
             }
         }
         this.inputs = [
             {
-                label: 'Text To Embed',
-                name: 'textToEmbed',
-                type: 'TextDoc|EmbeddingRequest|ChatCompletionRequest'
-            },
-            {
-                label: 'Model Name',
-                name: 'modelName',
-                type: 'string',
-                default: 'BAAI/bge-large-en-v1.5'
+                label: 'Audio or Video File',
+                name: 'file',
+                type: 'UploadFile',
             },
             {
                 label: 'HuggingFace Token',
                 name: 'huggingFaceToken',
                 type: 'password',
                 optional: true,
-            }
+            },
         ]
     }
 }
