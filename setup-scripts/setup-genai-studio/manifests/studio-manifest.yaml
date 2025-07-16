@@ -423,6 +423,12 @@ spec:
           value: studio
         - name: DATABASE_SSL
           value: "false"
+        - name: http_proxy
+          value: ${HTTP_PROXY}
+        - name: https_proxy
+          value: ${HTTP_PROXY}
+        - name: no_proxy
+          value: ${NO_PROXY}
         ports:
         - name: studio-frontend
           containerPort: 8080
