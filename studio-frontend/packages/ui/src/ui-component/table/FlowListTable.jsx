@@ -99,7 +99,8 @@ export const FlowListTable = ({ data, images, isLoading, filterFunction, updateF
         // console.log('handleSortData', data);
         const sorted = [...data].map((row) => ({
             ...row,
-            sandboxStatus: row.sandboxStatus || 'Not Running' // Ensure initial status
+            sandboxStatus: row.sandboxStatus || 'Not Running', // Ensure initial status
+            clickDeployStatus: row.clickDeployStatus || 'Not Deployed' // Ensure initial deployment status
         })).sort((a, b) => {
             if (orderBy === 'name') {
                 return order === 'asc' ? (a.name || '').localeCompare(b.name || '') : (b.name || '').localeCompare(a.name || '');
@@ -239,6 +240,8 @@ export const FlowListTable = ({ data, images, isLoading, filterFunction, updateF
 
     const [oneClickDeploymentDialogOpen, setOneClickDeploymentDialogOpen] = useState(false)
     const [oneClickDeploymentDialogProps, setOneClickDeploymentDialogProps] = useState({})
+    const [deploymentConfigById, setDeploymentConfigById] = useState({})
+    const [deployStatusById, setDeployStatusById] = useState({})
 
     const oneClickDeployment = async (id, deploymentConfig) => {
         try {
@@ -266,33 +269,113 @@ export const FlowListTable = ({ data, images, isLoading, filterFunction, updateF
         }
     };
 
-    const [deployStatusById, setDeployStatusById] = useState({});
-    const [deployConfigById, setDeployConfigById] = useState({});
-    const [deployWebSocketsById, setDeployWebSocketsById] = useState({}); // Store WebSocket references
+    // Helper functions to manage per-ID states
+    const getDeploymentConfigForId = (id) => {
+        return deploymentConfigById[id] || { hostname: '', username: '' };
+    };
+
+    const setDeploymentConfigForId = (id, config) => {
+        setDeploymentConfigById(prev => ({ ...prev, [id]: config }));
+    };
+
+    const getDeployStatusForId = (id) => {
+        return deployStatusById[id] || null;
+    };
 
     const setDeployStatusForId = (id, status) => {
-        setDeployStatusById((prev) => ({ ...prev, [id]: status }));
+        setDeployStatusById(prev => ({ ...prev, [id]: status }));
     };
 
-    const setDeployConfigForId = (id, config) => {
-        setDeployConfigById((prev) => ({ ...prev, [id]: config }));
+    // One-click deployment state using database-backed persistence (like Run Sandbox)
+    const [deployWebSocketsById, setDeployWebSocketsById] = useState({}); // Store WebSocket references
+
+    const updateClickDeployStatus = (id, newStatus) => {
+        setSortedData((prevData) =>
+            prevData.map((row) =>
+                row.id === id
+                    ? {
+                          ...row,
+                          clickDeployStatus: newStatus
+                      }
+                    : row
+            )
+        );
     };
 
+    // WebSocket management for one-click deployment (similar to sandbox WebSocket)
     const setDeployWebSocketForId = (id, ws) => {
         setDeployWebSocketsById((prev) => ({ ...prev, [id]: ws }));
     };
 
-    // Cleanup deployment WebSockets when component unmounts
+    // Function to open one-click deployment WebSocket (similar to sandbox)
+    const openDeploymentWebSocketConnection = (id) => {
+        const wsUrl = `${window.location.origin.replace(/^http/, 'ws')}/studio-backend/ws/deploy-and-monitor`;
+        const ws = new window.WebSocket(wsUrl);
+        
+        ws.onopen = () => {
+            console.log('Connected to deployment WebSocket for', id);
+        };
+        
+        ws.onmessage = (event) => {
+            let data;
+            try { 
+                data = JSON.parse(event.data); 
+            } catch { 
+                return; 
+            }
+            
+            console.log('Deployment WebSocket message for', id, ':', data);
+            
+            if (data.status === 'Done') {
+                updateClickDeployStatus(id, 'Deployed');
+                updateFlowToServerApi(id, { clickDeployStatus: 'Deployed' });
+                ws.close();
+                setDeployWebSocketForId(id, null);
+            } else if (data.status === 'Error') {
+                updateClickDeployStatus(id, 'Error');
+                updateFlowToServerApi(id, { clickDeployStatus: 'Error' });
+                ws.close();
+                setDeployWebSocketForId(id, null);
+            } else if (data.status === 'In Progress' || data.status === 'Preparing') {
+                updateClickDeployStatus(id, 'Deploying');
+                updateFlowToServerApi(id, { clickDeployStatus: 'Deploying' });
+            }
+        };
+        
+        ws.onerror = (error) => {
+            console.error('Deployment WebSocket error for', id, ':', error);
+            updateClickDeployStatus(id, 'Error');
+            updateFlowToServerApi(id, { clickDeployStatus: 'Error' });
+        };
+        
+        ws.onclose = (event) => {
+            console.log('Deployment WebSocket closed for', id, ':', event.code, event.reason);
+            setDeployWebSocketForId(id, null);
+        };
+        
+        setDeployWebSocketForId(id, ws);
+        return ws;
+    };
+
+    // Recreate deployment WebSocket connections on page load (similar to sandbox)
     useEffect(() => {
+        const openConnections = [];
+        
+        sortedData.forEach((row) => {
+            if (row.clickDeployStatus === 'Deploying') {
+                const ws = openDeploymentWebSocketConnection(row.id);
+                openConnections.push(ws);
+            }
+        });
+        
         return () => {
-            // Close all deployment WebSockets when component unmounts
-            Object.values(deployWebSocketsById).forEach(ws => {
+            openConnections.forEach((ws) => {
                 if (ws && ws.readyState === WebSocket.OPEN) {
                     ws.close();
                 }
             });
         };
-    }, [deployWebSocketsById]);
+    }, [sortedData]);
 
     useEffect(() => {
         setSortedData(handleSortData());
@@ -672,7 +755,7 @@ export const FlowListTable = ({ data, images, isLoading, filterFunction, updateF
                                                 justifyContent='center'
                                                 alignItems='center'
                                             >
-                                                {deployWebSocketsById[row.id] && deployWebSocketsById[row.id].readyState === WebSocket.OPEN ? (
+                                                {row.clickDeployStatus === 'Deploying' ? (
                                                     <Tooltip title="Deployment in progress - click to monitor">
                                                         <Button
                                                             startIcon={<CircularProgress size={16} />}
@@ -738,12 +821,13 @@ export const FlowListTable = ({ data, images, isLoading, filterFunction, updateF
                 dialogProps={oneClickDeploymentDialogProps}
                 onCancel={() => setOneClickDeploymentDialogOpen(false)}
                 onConfirm={oneClickDeployment}
-                deployStatus={deployStatusById[oneClickDeploymentDialogProps.id]}
+                deployStatus={getDeployStatusForId(oneClickDeploymentDialogProps.id)}
                 setDeployStatus={(status) => setDeployStatusForId(oneClickDeploymentDialogProps.id, status)}
-                deploymentConfig={deployConfigById[oneClickDeploymentDialogProps.id] || { hostname: '', username: '' }}
-                setDeploymentConfig={(config) => setDeployConfigForId(oneClickDeploymentDialogProps.id, config)}
+                deploymentConfig={getDeploymentConfigForId(oneClickDeploymentDialogProps.id)}
+                setDeploymentConfig={(config) => setDeploymentConfigForId(oneClickDeploymentDialogProps.id, config)}
                 deployWebSocket={deployWebSocketsById[oneClickDeploymentDialogProps.id]}
                 setDeployWebSocket={(ws) => setDeployWebSocketForId(oneClickDeploymentDialogProps.id, ws)}
+                openDeploymentWebSocket={() => openDeploymentWebSocketConnection(oneClickDeploymentDialogProps.id)}
             />
         </>
     )

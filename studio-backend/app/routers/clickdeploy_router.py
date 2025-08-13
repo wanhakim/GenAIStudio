@@ -5,7 +5,7 @@ import asyncio
 import json
 
 from app.models.pipeline_model import DeployPipelineFlow
-from app.services.clickdeploy_service import upload_pipeline_zip
+from app.services.clickdeploy_service import upload_pipeline_zip, stop_deployment
 
 router = APIRouter()
 
@@ -23,6 +23,25 @@ async def upload_pipeline_files(request: DeployPipelineFlow):
         print(f"[ERROR] Exception in /upload-pipeline-files: {e}")
         raise HTTPException(status_code=500, detail=str(e))
     return response
+
+@router.post("/stop-deployment")
+async def stop_deployment_endpoint(request: dict):
+    print("[DEBUG] Entered /stop-deployment endpoint")
+    remote_host = request.get("remoteHost")
+    remote_user = request.get("remoteUser")
+    chatflow_id = request.get("chatflowId")
+    
+    if not remote_host or not remote_user:
+        raise HTTPException(status_code=400, detail="remoteHost and remoteUser are required")
+    
+    try:
+        print(f"[DEBUG] Stopping deployment for chatflow {chatflow_id} on {remote_host}")
+        response = stop_deployment(remote_host, remote_user, chatflow_id)
+        print("[DEBUG] stop_deployment returned")
+        return response
+    except Exception as e:
+        print(f"[ERROR] Exception in /stop-deployment: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
 
 @router.websocket("/ws/deploy-and-monitor")
 async def deploy_and_monitor_status(websocket: WebSocket):

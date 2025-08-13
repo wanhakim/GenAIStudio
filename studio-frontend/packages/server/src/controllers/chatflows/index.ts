@@ -298,6 +298,19 @@ const oneClickDeployment = async (req: Request, res: Response, next: NextFunctio
     }
 }
 
+const stopOneClickDeployment = async (req: Request, res: Response, next: NextFunction) => {
+    console.log('Stopping one click deployment')
+    try {
+        if (typeof req.params === 'undefined' || !req.params.id) {
+            throw new InternalFlowiseError(StatusCodes.PRECONDITION_FAILED, `Error: chatflowsRouter.stopOneClickDeployment - id not provided!`)
+        }
+        const stopResponse = await chatflowsService.stopOneClickDeploymentService(req.params.id, req.body)
+        res.status(200).json(stopResponse)
+    } catch (error) {
+        next(error)
+    }
+}
+
 export default {
     checkIfChatflowIsValidForStreaming,
     checkIfChatflowIsValidForUploads,
@@ -316,5 +329,6 @@ export default {
     stopChatflowSandbox,
     buildDeploymentPackage,
     getPublicKey,
-    oneClickDeployment
+    oneClickDeployment,
+    stopOneClickDeployment
 }

@@ -145,3 +145,66 @@ def clean_up_temp_dir(dir_path: str):
         shutil.rmtree(dir_path)
     except Exception as e:
         logging.exception(f"An error occurred while deleting the temp directory {dir_path}.")
+
+def stop_deployment(hostname, username, chatflow_id=None):
+    """
+    Stop a running deployment by executing docker compose down on the remote machine
+    """
+    print(f"[INFO] Starting deployment stop on remote server {hostname}...")
+    remote_compose_dir = "genaistudio-compose"
+    
+    try:
+        print("[INFO] Connecting to remote server via SSH...")
+        ssh = paramiko.SSHClient()
+        ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+        ssh.connect(hostname, username=username)
+        print("[INFO] SSH connection established.")
+
+        # Check if genaistudio-compose directory exists
+        print(f"[INFO] Checking if {remote_compose_dir} directory exists...")
+        _, stdout, stderr = ssh.exec_command(f"ls -d {remote_compose_dir}", get_pty=True)
+        exit_status = stdout.channel.recv_exit_status()
+        
+        if exit_status != 0:
+            print(f"[INFO] {remote_compose_dir} does not exist, nothing to stop")
+            ssh.close()
+            return {
+                "status": "success",
+                "message": "No deployment found to stop",
+                "success": True
+            }
+        
+        # Stop docker compose services
+        print("[INFO] Stopping docker compose services...")
+        _, stdout, stderr = ssh.exec_command(f"cd {remote_compose_dir} && docker compose down", get_pty=True)
+        exit_status = stdout.channel.recv_exit_status()
+        stderr_str = stderr.read().decode().strip()
+        stdout_str = stdout.read().decode().strip()
+        
+        print(f"[INFO] Docker compose down exit status: {exit_status}")
+        print(f"[INFO] Docker compose down stdout: {stdout_str}")
+        print(f"[INFO] Docker compose down stderr: {stderr_str}")
+        
+        ssh.close()
+        print("[INFO] SSH connection closed.")
+        
+        if exit_status == 0:
+            return {
+                "status": "success",
+                "message": "Deployment stopped successfully",
+                "success": True
+            }
+        else:
+            return {
+                "status": "error",
+                "error": f"Failed to stop deployment: {stderr_str}",
+                "success": False
+            }
+            
+    except Exception as e:
+        print(f"[ERROR] An error occurred while stopping deployment: {e}")
+        return {
+            "status": "error", 
+            "error": str(e),
+            "success": False
+        }

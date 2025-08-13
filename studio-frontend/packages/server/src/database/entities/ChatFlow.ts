@@ -1,6 +1,6 @@
 /* eslint-disable */
 import { Entity, Column, CreateDateColumn, UpdateDateColumn, PrimaryGeneratedColumn } from 'typeorm'
-import { ChatflowType, IChatFlow, SandboxStatusType } from '../../Interface'
+import { ChatflowType, IChatFlow, SandboxStatusType, ClickDeployStatusType } from '../../Interface'
 
 @Entity()
 export class ChatFlow implements IChatFlow {
@@ -57,6 +57,12 @@ export class ChatFlow implements IChatFlow {
 
     @Column({nullable: true, type: 'text'})
     sandboxDebugLogsUrl?: string
+
+    @Column({nullable: true, type: 'text'})
+    clickDeployStatus?: ClickDeployStatusType
+
+    @Column({nullable: true, type: 'text'})
+    clickDeployDetails?: string
 
     @Column({ type: 'timestamp' })
     @CreateDateColumn()

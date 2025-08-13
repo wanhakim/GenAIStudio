@@ -37,6 +37,8 @@ const getPublicKey = () => client.get('/chatflows/pubkey')
 
 const clickDeployment = (id, body) => client.post(`chatflows-sandbox/one-click-deployment/${id}`, body)
 
+const stopOneClickDeployment = (id, body) => client.post(`chatflows-sandbox/stop-one-click-deployment/${id}`, body)
+
 export default {
     getAllChatflows,
     getAllAgentflows,
@@ -55,5 +57,6 @@ export default {
     stopSandbox,
     buildDeploymentPackage,
     getPublicKey,
-    clickDeployment
+    clickDeployment,
+    stopOneClickDeployment
 }

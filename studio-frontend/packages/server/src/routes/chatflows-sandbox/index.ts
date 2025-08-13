@@ -12,4 +12,6 @@ router.post(['/build-deployment-package/','/build-deployment-package/:id'], chat
 
 router.post('/one-click-deployment/:id', chatflowsController.oneClickDeployment);
 
+router.post('/stop-one-click-deployment/:id', chatflowsController.stopOneClickDeployment);
+
 export default router

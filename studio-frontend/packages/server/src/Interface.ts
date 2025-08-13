@@ -5,6 +5,7 @@ export type MessageType = 'apiMessage' | 'userMessage'
 export type ChatflowType = 'CHATFLOW' | 'MULTIAGENT' | 'OPEA'
 
 export type SandboxStatusType = 'Not Running' | 'Getting Ready' | 'Ready' | 'Stopping' | 'Error'
+export type ClickDeployStatusType = 'Not Deployed' | 'Deploying' | 'Deployed' | 'Error' | 'Stopping'
 
 export enum chatType {
     INTERNAL = 'INTERNAL',
@@ -34,6 +35,8 @@ export interface IChatFlow {
     category?: string
     type?: ChatflowType
     sandboxStatus?: SandboxStatusType
+    clickDeployStatus?: ClickDeployStatusType
+    clickDeployDetails?: string
 }
 
 export interface IChatMessage {
